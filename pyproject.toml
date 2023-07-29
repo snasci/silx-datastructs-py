@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "silx-datastructs"
-version = "0.1.1"
+version = "0.1.2"
 description = "Datastructures for inter-system communication"
 authors = ["Michael Samsom <mike.samsom@asica.ca>"]
 readme = "README.md"
@@ -8,7 +8,7 @@ packages = [{include = "silx_datastructs"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^2.1.1"
+pydantic = "1.10.2"
 
 
 [build-system]
