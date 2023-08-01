@@ -17,12 +17,11 @@ class Population(BaseModel):
 
 
 class Entity(BaseModel):
-    index: int
     token: str
-    var_type: str
-    domain: list[str]
+    var_type: str | None
+    domain: list[str] | None
     unit: str | None
-    context: str
+    context: str | None
     measure: str | None
     distribution: str | None
 
