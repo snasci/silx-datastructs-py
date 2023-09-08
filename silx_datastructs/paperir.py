@@ -19,7 +19,7 @@ class Population(BaseModel):
 class Entity(BaseModel):
     token: str
     var_type: str | None
-    domain: list[str] | None
+    domain: str | None
     unit: str | None
     context: str | None
     measure: str | None
