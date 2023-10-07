@@ -26,9 +26,6 @@ class Entity(BaseModel):
     distribution: str | None
 
 
-TValue = float | int | bool | dict[str, float]
-
-
 class EntityState(BaseModel):
     entity: Entity
     state: str | None
@@ -41,7 +38,7 @@ class SID(BaseModel):
 
 class Datum(BaseModel):
     n: int | None
-    value: TValue
+    value: float
     variance: float | tuple[float, float] | None
     variance_type: str | None
     sid: SID
