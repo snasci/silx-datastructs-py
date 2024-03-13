@@ -1,51 +1,41 @@
 from pydantic import BaseModel
+from datetime import date
+from typing import Optional, Any
+
+from .article import Author
+from .dag import ProbabilityStatement
 
 
-class Paper(BaseModel):
-    id: int
-    paper_type: str
-    data_source: str
-    n_studies: int
+class StudyInfo(BaseModel):
+    title: str
+    study_date: date
+    study_type: str
+    status: str = "Completed"
+    enrollment: Optional[int] = None
+    short_title: Optional[str] = None
+    abstract: Optional[str] = None
+    sponsor: Optional[str] = None
+    n_arms: int = 1
 
 
-class Population(BaseModel):
-    species: str
-    sampling: str
-    n: int | None
-    inclusion: list[str] | None = None
-    exclusion: list[str] | None = None
+class StudySponsor(BaseModel):
+    name: str
+    status: str
+    agency_class: str
 
 
-class Entity(BaseModel):
-    token: str
-    var_type: str | None
-    domain: str | None
-    unit: str | None
-    context: str | None
-    measure: str | None
-    distribution: str | None
-
-
-class EntityState(BaseModel):
-    entity: Entity
-    state: str | None
-
-
-class SID(BaseModel):
-    causes: list[EntityState]
-    outcome: EntityState
-
-
-class Datum(BaseModel):
-    n: int | None
-    value: float
-    variance: float | tuple[float, float] | None
-    variance_type: str | None
-    sid: SID
+class StudyDesign(BaseModel):
+    allocation: Optional[str]
+    intervention_model: Optional[str]
+    observation_model: Optional[str]
+    purpose: Optional[str]
+    masking: Optional[str]
 
 
 class PaperIR(BaseModel):
-    paper: Paper
-    population: Population
-    entities: list[Entity]
-    data: list[Datum]
+    id: str
+    study_info: StudyInfo
+    study_design: StudyDesign
+    authors: list[StudySponsor] | list[Author]
+    source_index: list[Any]
+    dag: list[ProbabilityStatement]
