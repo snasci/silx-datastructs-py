@@ -7,7 +7,7 @@ from .dag import ProbabilityStatement
 
 
 class StudyInfo(BaseModel):
-    title: str
+    title: Optional[str]
     study_date: date
     study_type: str
     status: str = "Completed"
@@ -15,7 +15,7 @@ class StudyInfo(BaseModel):
     short_title: Optional[str] = None
     abstract: Optional[str] = None
     sponsor: Optional[str] = None
-    n_arms: int = 1
+    n_arms: Optional[int] = 1
 
 
 class StudySponsor(BaseModel):
