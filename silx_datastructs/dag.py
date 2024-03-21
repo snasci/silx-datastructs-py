@@ -1,5 +1,6 @@
-from pydantic import BaseModel, validator
 from typing import Any, Optional
+
+from pydantic import BaseModel, validator
 
 
 class InterventionMetaData(BaseModel):
@@ -19,11 +20,19 @@ class BaselineMetaData(BaseModel):
     result_description: Optional[str] = None
 
 
-class DAGEntity(BaseModel):
+class StrHashableBaseModel(BaseModel):
+    def __hash__(self) -> int:
+        return hash(str(self))
+
+
+class DAGEntity(StrHashableBaseModel):
     name: str
     cui: Optional[str] = None
     tree_numbers: Optional[list[str]] = None
     definition: Optional[str] = None
+
+    def __str__(self) -> str:
+        return self.name
 
     @validator("name", pre=True, always=True)
     def convert_to_lowercase(cls, val):
@@ -77,7 +86,7 @@ class Unit(BaseModel):
         )
 
 
-class Realization(BaseModel):
+class Realization(StrHashableBaseModel):
     value: float | str | int | CatRange | bool
     unit: Optional[Unit] = None
 
@@ -100,7 +109,7 @@ class DistributionParams(BaseModel):
         return s
 
 
-class DAGNode(BaseModel):
+class DAGNode(StrHashableBaseModel):
     entity: DAGEntity
     realization: Optional[Realization] = None
     source: Optional[str] = None
@@ -113,9 +122,6 @@ class DAGNode(BaseModel):
 
         return s
 
-    def __hash__(self):
-        return hash(str(self))
-
 
 class ConditionNode(DAGNode):
     group_type: Optional[str] = None
@@ -127,13 +133,13 @@ def generate_placebo_condition(source: str, group_type: str) -> ConditionNode:
             name="placebo",
             cui="C0032042",
             tree_numbers=["D26.660", "E02.785"],
-            definition="""Any dummy medication or treatment. 
-            Although placebos originally were medicinal 
-            preparations having no specific pharmacological 
-            activity against a targeted condition, the concept 
-            has been extended to include treatments or procedures, 
-            especially those administered to control groups in 
-            clinical trials in order to provide baseline measurements 
+            definition="""Any dummy medication or treatment.
+            Although placebos originally were medicinal
+            preparations having no specific pharmacological
+            activity against a targeted condition, the concept
+            has been extended to include treatments or procedures,
+            especially those administered to control groups in
+            clinical trials in order to provide baseline measurements
             for the experimental protocol.""",
         ),
         realization=Realization(value=True),
@@ -159,13 +165,13 @@ def generate_placebo_intervention(
             name="placebo",
             cui="C0032042",
             tree_numbers=["D26.660", "E02.785"],
-            definition="""Any dummy medication or treatment. 
-            Although placebos originally were medicinal 
-            preparations having no specific pharmacological 
-            activity against a targeted condition, the concept 
-            has been extended to include treatments or procedures, 
-            especially those administered to control groups in 
-            clinical trials in order to provide baseline measurements 
+            definition="""Any dummy medication or treatment.
+            Although placebos originally were medicinal
+            preparations having no specific pharmacological
+            activity against a targeted condition, the concept
+            has been extended to include treatments or procedures,
+            especially those administered to control groups in
+            clinical trials in order to provide baseline measurements
             for the experimental protocol.""",
         ),
         realization=Realization(value=True),
@@ -179,7 +185,7 @@ class BaselineNode(DAGNode):
     meta: Optional[BaselineMetaData] = None
 
 
-def remove_local_repeats(nodelist: list[DAGNode]) -> list[DAGNode]:
+def remove_local_repeats(nodelist: list[DAGNode] | None) -> list[DAGNode] | None:
     if nodelist is None:
         return nodelist
     list_without_duplicates = []
