@@ -1,6 +1,13 @@
 from typing import Any, Optional
+from enum import Enum
 
 from pydantic import BaseModel, validator
+
+
+class NodeType(Enum):
+    BASELINE = 1
+    INTERVENTION = 2
+    OUTCOME = 3
 
 
 class InterventionMetaData(BaseModel):
@@ -183,6 +190,17 @@ def generate_placebo_intervention(
 class BaselineNode(DAGNode):
     data: Optional[DistributionParams] = None
     meta: Optional[BaselineMetaData] = None
+
+
+def get_node_type(entity: DAGNode) -> NodeType:
+    if isinstance(entity, BaselineNode):
+        return NodeType.BASELINE
+    elif isinstance(entity, InterventionNode):
+        return NodeType.INTERVENTION
+    elif isinstance(entity, OutcomeNode):
+        return NodeType.OUTCOME
+    else:
+        raise TypeError(f"Invalid input type {entity} type: {type(entity)}")
 
 
 def remove_local_repeats(nodelist: list[DAGNode] | None) -> list[DAGNode] | None:
