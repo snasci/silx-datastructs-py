@@ -2,6 +2,9 @@ from pydantic import BaseModel
 
 from .dag import DAGEntity, NodeType
 
+EDGE_SEPARATOR = "<::>"
+DIGRAPH_NODE_SEPARATOR = "->"
+
 
 class NodeMetaData(BaseModel):
     name: str
@@ -32,9 +35,6 @@ class NodeKey(KeyBase):
 
     def causes_targets(self) -> tuple[None, str]:
         return None, str(self.entity)
-
-
-DIGRAPH_NODE_SEPARATOR = "->"
 
 
 def node_key_from_string(s: str) -> NodeKey:
@@ -80,9 +80,6 @@ def edge_key_from_string(s: str) -> EdgeKey:
     src = NodeKey(name=node_key_from_string(ssrc))
     dst = NodeKey(name=node_key_from_string(sdst))
     return EdgeKey(src=src, dst=dst)
-
-
-EDGE_SEPARATOR = "<::>"
 
 
 class HyperEdgeKey(KeyBase):
