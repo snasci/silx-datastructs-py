@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 from .dag import DAGEntity, NodeType
 
-EDGE_SEPARATOR = "<::>"
+EDGE_SEPARATOR = "<||>"
 DIGRAPH_NODE_SEPARATOR = "->"
 
 
