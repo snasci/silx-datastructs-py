@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from enum import Enum
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, field_validator
 
 
 class NodeType(Enum):
@@ -37,6 +37,12 @@ class DAGEntity(StrHashableBaseModel):
     cui: Optional[str] = None
     tree_numbers: Optional[list[str]] = None
     definition: Optional[str] = None
+
+    # colons separate key types in redis
+    @field_validator("name")
+    @classmethod
+    def remove_colons(cls, v: str) -> str:
+        return v.replace(":", ";")
 
     def __str__(self) -> str:
         return self.name
