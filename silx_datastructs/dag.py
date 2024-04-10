@@ -38,12 +38,6 @@ class DAGEntity(StrHashableBaseModel):
     tree_numbers: Optional[list[str]] = None
     definition: Optional[str] = None
 
-    # colons separate key types in redis
-    @field_validator("name")
-    @classmethod
-    def remove_colons(cls, v: str) -> str:
-        return v.replace(":", ";")
-
     def __str__(self) -> str:
         return self.name
 
