@@ -44,8 +44,7 @@ class NodeKey(KeyBase):
 
 def node_key_from_string(s: str) -> NodeKey:
     # get rid of brackets
-    name = s[1:-1]
-    return NodeKey(name=name)
+    return NodeKey(name=s)
 
 
 class EdgeKey(KeyBase):
