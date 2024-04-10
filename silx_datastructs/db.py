@@ -42,11 +42,6 @@ class NodeKey(KeyBase):
         return None, str(self.entity)
 
 
-def node_key_from_string(s: str) -> NodeKey:
-    # get rid of brackets
-    return NodeKey(name=s)
-
-
 class EdgeKey(KeyBase):
     src: NodeKey
     dst: NodeKey
@@ -79,13 +74,6 @@ class EdgeKey(KeyBase):
         return [self.src.name], self.dst.name
 
 
-def edge_key_from_string(s: str) -> EdgeKey:
-    ssrc, sdst = s.split(DIGRAPH_NODE_SEPARATOR)
-    src = NodeKey(name=node_key_from_string(ssrc))
-    dst = NodeKey(name=node_key_from_string(sdst))
-    return EdgeKey(src=src, dst=dst)
-
-
 class HyperEdgeKey(KeyBase):
     edges: list[EdgeKey]
     _n: int = 0
@@ -115,12 +103,6 @@ class HyperEdgeKey(KeyBase):
         causes = [e.src.name for e in self.edges]
         targets = [e.dst.name for e in self.edges]
         return causes, targets
-
-
-def hyperedge_key_from_string(s: str) -> HyperEdgeKey:
-    edge_strings = s.split(EDGE_SEPARATOR)
-    edges = [edge_key_from_string(s) for s in edge_strings]
-    return HyperEdgeKey(edges=edges)
 
 
 class HyperEdgeKeyStringList(BaseModel):
