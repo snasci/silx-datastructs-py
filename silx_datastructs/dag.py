@@ -1,21 +1,26 @@
 from typing import Any, Optional
 from enum import Enum
 
-from pydantic import BaseModel, validator, field_validator
+from pydantic import BaseModel, validator
 
 
 class NodeType(Enum):
     BASELINE = 1
     INTERVENTION = 2
-    OUTCOME = 3
+    CONDITION = 3
+    OUTCOME = 4
 
 
-class InterventionMetaData(BaseModel):
+class MetaDataBase(BaseModel):
+    source: Optional[str] = None
+
+
+class InterventionMetaData(MetaDataBase):
     entity_description: Optional[str] = None
     experiment_description: Optional[str] = None
 
 
-class OutcomeMetaData(BaseModel):
+class OutcomeMetaData(MetaDataBase):
     title: Optional[str] = None
     description: Optional[str] = None
     time_frame: Optional[str] = None
@@ -25,6 +30,10 @@ class OutcomeMetaData(BaseModel):
 
 class BaselineMetaData(BaseModel):
     result_description: Optional[str] = None
+
+
+class ConditionMetaData(MetaDataBase):
+    definition: str
 
 
 class StrHashableBaseModel(BaseModel):
@@ -112,7 +121,10 @@ class DistributionParams(BaseModel):
     n: Optional[int] = None
 
     def __str__(self) -> str:
-        s = f"N(μ={self.param.value} {self.param.unit.name}, σ={self.dispersion})"
+        nm = None
+        if self.param.unit is not None:
+            nm = self.param.unit.name
+        s = f"N(μ={self.param.value} {nm}, σ={self.dispersion})"
         return s
 
 
@@ -131,6 +143,7 @@ class DAGNode(StrHashableBaseModel):
 
 
 class ConditionNode(DAGNode):
+    meta: Optional[ConditionMetaData] = None
     group_type: Optional[str] = None
 
 
@@ -197,6 +210,8 @@ def get_node_type(entity: DAGNode) -> NodeType:
         return NodeType.BASELINE
     elif isinstance(entity, InterventionNode):
         return NodeType.INTERVENTION
+    elif isinstance(entity, ConditionNode):
+        return NodeType.CONDITION
     elif isinstance(entity, OutcomeNode):
         return NodeType.OUTCOME
     else:
@@ -257,17 +272,21 @@ class ProbabilityStatement(BaseModel):
         return s
 
     def condition_entities_set(self) -> set[str]:
-        ce = [] if self.condition_entities is not None else self.condition_entities
+        ce = []
+        if self.condition_entities is not None:
+            ce = self.condition_entities
         return set([str(e) for e in ce])
 
     def baseline_entities_set(self) -> set[str]:
-        be = [] if self.baseline_entities is not None else self.baseline_entities
+        be = []
+        if self.baseline_entities is not None:
+            be = self.baseline_entities
         return set([str(e) for e in be])
 
     def intervention_entities_set(self) -> set[str]:
-        ie = (
-            [] if self.intervention_entities is not None else self.intervention_entities
-        )
+        ie = []
+        if self.intervention_entities is not None:
+            ie = self.intervention_entities
         return set([str(e) for e in ie])
 
     def outcome_entity_set(self) -> set[str]:
@@ -281,13 +300,14 @@ class ProbabilityStatement(BaseModel):
         return set([str(self.data)])
 
     def equal_vec(self, prob_stmnt) -> tuple[bool]:
-        eq_v = (
-            self.condition_entities_set() == prob_stmnt.condition_entities_set(),
-            self.baseline_entities_set() == prob_stmnt.baseline_entities_set(),
-            self.intervention_entities_set() == prob_stmnt.intervention_entities_set(),
-            self.outcome_entity_set() == prob_stmnt.outcome_entity_set(),
-            self.data_set() == prob_stmnt.data_set(),
+        c_v: bool = self.condition_entities_set() == prob_stmnt.condition_entities_set()
+        b_v: bool = self.baseline_entities_set() == prob_stmnt.baseline_entities_set()
+        i_v: bool = (
+            self.intervention_entities_set() == prob_stmnt.intervention_entities_set()
         )
+        o_v: bool = self.outcome_entity_set() == prob_stmnt.outcome_entity_set()
+        d_v: bool = self.data_set() == prob_stmnt.data_set()
+        eq_v = (c_v, b_v, i_v, o_v, d_v)
         return eq_v
 
     def remove_placebo_repeats(self):
