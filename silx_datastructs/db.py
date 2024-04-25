@@ -19,8 +19,8 @@ class KeyBase(BaseModel):
     def __hash__(self) -> int:
         return hash(str(self))
 
-    def __eq__(self, __value: object) -> bool:
-        return str(self) == str(__value)
+    def __eq__(self, other: object) -> bool:
+        return str(self) == str(other)
 
     def causes_targets(self):
         raise NotImplementedError()
@@ -42,6 +42,11 @@ class NodeKey(KeyBase):
         return None, str(self.entity)
 
 
+class NodeDomain(BaseModel):
+    entity: DAGEntity
+    domain: set[str]
+
+
 class EdgeKey(KeyBase):
     src: NodeKey
     dst: NodeKey
@@ -52,26 +57,11 @@ class EdgeKey(KeyBase):
     def __str__(self) -> str:
         return f"{self.src}{DIGRAPH_NODE_SEPARATOR}{self.dst}"
 
-    def __iter__(self):
-        self._n = 0
-        return self
-
-    def __next__(self) -> NodeKey:
-        if self._n == 0:
-            member = self.src
-            self._n += 1
-            return member
-        elif self._n == 1:
-            member = self.dst
-            self._n += 1
-            return member
-        raise StopIteration
-
     def as_tuple(self) -> tuple[str, str]:
-        return self.src.name, self.dst.name
+        return self.src.entity.name, self.dst.entity.name
 
     def causes_targets(self) -> tuple[list[str], str]:
-        return [self.src.name], self.dst.name
+        return [self.src.entity.name], self.dst.entity.name
 
 
 class HyperEdgeKey(KeyBase):
@@ -88,20 +78,9 @@ class HyperEdgeKey(KeyBase):
         self.edges.sort(key=lambda x: str(x.src) + str(x.dst))
         return EDGE_SEPARATOR.join(map(str, self.edges))
 
-    def __iter__(self):
-        self._n = 0
-        return self
-
-    def __next__(self) -> EdgeKey:
-        if self._n < len(self.edges):
-            member = self.edges[self._n]
-            self._n += 1
-            return member
-        raise StopIteration
-
     def causes_targets(self) -> tuple[list[str], list[str]]:
-        causes = [e.src.name for e in self.edges]
-        targets = [e.dst.name for e in self.edges]
+        causes = [e.src.entity.name for e in self.edges]
+        targets = [e.dst.entity.name for e in self.edges]
         return causes, targets
 
 
