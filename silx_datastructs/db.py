@@ -37,6 +37,11 @@ class NodeKey(KeyBase):
         return None, str(self.entity)
 
 
+UNIVERSAL_CONTEXT_KEY = NodeKey(
+    entity=DAGEntity(name="universalcontext"), node_type=NodeType.NULL
+)
+
+
 class NodeDomain(BaseModel):
     entity: DAGEntity
     domain: set[str]

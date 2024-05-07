@@ -235,9 +235,7 @@ def remove_local_repeats(nodelist: list[DAGNode] | None) -> list[DAGNode] | None
     return list_without_duplicates
 
 
-def remove_repeats_in_other(
-    nodelist: list[DAGNode], reflist: list[DAGNode]
-) -> list[DAGNode]:
+def remove_repeats_in_other(nodelist, reflist):
     if nodelist is None:
         return nodelist
     list_without_duplicates = []
@@ -306,7 +304,7 @@ class ProbabilityStatement(BaseModel):
             return set([])
         return set([str(self.data)])
 
-    def equal_vec(self, prob_stmnt) -> tuple[bool]:
+    def equal_vec(self, prob_stmnt) -> tuple[bool, bool, bool, bool, bool]:
         c_v: bool = self.condition_entities_set() == prob_stmnt.condition_entities_set()
         b_v: bool = self.baseline_entities_set() == prob_stmnt.baseline_entities_set()
         i_v: bool = (
