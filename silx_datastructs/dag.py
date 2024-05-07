@@ -9,6 +9,7 @@ class NodeType(Enum):
     INTERVENTION = 2
     CONDITION = 3
     OUTCOME = 4
+    NULL = 5
 
 
 class MetaDataBase(BaseModel):
