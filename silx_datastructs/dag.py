@@ -53,7 +53,9 @@ class DAGEntity(StrHashableBaseModel):
         return s.replace(":", "").lower()
 
     def __str__(self) -> str:
-        return self.name
+        # TODO: the validator isn't running all the time.
+        # need to fix
+        return DAGEntity.clean_str(self.name)
 
     @validator("name", pre=True, always=True)
     def clean_for_db(cls, val):
