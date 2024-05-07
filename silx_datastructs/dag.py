@@ -52,9 +52,13 @@ class DAGEntity(StrHashableBaseModel):
         return self.name
 
     @validator("name", pre=True, always=True)
-    def convert_to_lowercase(cls, val):
+    def clean_for_db(cls, val):
         if isinstance(val, str):
-            return val.lower()
+            val = val.lower()
+
+            # Remove colon (this is special character in redis)
+            val.replace(":", "")
+            return val
         return val
 
 
