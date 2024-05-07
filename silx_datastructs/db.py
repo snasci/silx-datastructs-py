@@ -31,12 +31,7 @@ class NodeKey(KeyBase):
     node_type: NodeType
 
     def __str__(self) -> str:
-        entity_str = str(self.entity)
-
-        # : is a special character for Redis keys
-        entity_str.replace(":", ";")
-
-        return f"{str(self.entity)}"
+        return f"{self.entity}"
 
     def causes_targets(self) -> tuple[None, str]:
         return None, str(self.entity)

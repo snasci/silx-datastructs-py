@@ -48,17 +48,17 @@ class DAGEntity(StrHashableBaseModel):
     tree_numbers: Optional[list[str]] = None
     definition: Optional[str] = None
 
+    @staticmethod
+    def clean_str(s: str) -> str:
+        return s.replace(":", "").lower()
+
     def __str__(self) -> str:
         return self.name
 
     @validator("name", pre=True, always=True)
     def clean_for_db(cls, val):
         if isinstance(val, str):
-            val = val.lower()
-
-            # Remove colon (this is special character in redis)
-            val.replace(":", "")
-            return val
+            return DAGEntity.clean_str(val)
         return val
 
 
