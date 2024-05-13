@@ -6,6 +6,16 @@ EDGE_SEPARATOR = "<||>"
 DIGRAPH_NODE_SEPARATOR = "->"
 
 
+def hyper_edge_string_to_entities(hyper_str: str) -> list[str]:
+    edges: list[str] = hyper_str.split(EDGE_SEPARATOR)
+    nodes: list[str] = []
+    for edge in edges:
+        s, e = edge.split(DIGRAPH_NODE_SEPARATOR)
+        nodes.append(s)
+        nodes.append(e)
+    return nodes
+
+
 class NodeMetaData(BaseModel):
     name: str
     canonical_unit: str
