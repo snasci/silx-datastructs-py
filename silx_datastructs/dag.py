@@ -10,6 +10,14 @@ class NodeType(Enum):
     CONDITION = 3
     OUTCOME = 4
     NULL = 5
+    CONFOUNDER = 6
+
+
+class RandomizationStrategy(Enum):
+    NONE = 0
+    RCT = 1  # Randomized control trial
+    SSR = 2  # Survey with random sampling
+    RCTRS = 3 # Randomized control with random sampling
 
 
 class MetaDataBase(BaseModel):
