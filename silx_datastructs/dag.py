@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from enum import Enum
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 
 class NodeType(Enum):
@@ -14,10 +14,23 @@ class NodeType(Enum):
 
 
 class RandomizationStrategy(Enum):
-    NONE = 0
-    RCT = 1  # Randomized control trial
-    SSR = 2  # Survey with random sampling
-    RCTRS = 3 # Randomized control with random sampling
+    NONE = 1
+    RCT = 2  # Randomized control trial
+    SSR = 3  # Survey with random sampling
+    RCTRS = 4 # Randomized control with random sampling
+
+
+class Masking(Enum):
+    NONE = 1
+    SINGLE = 2
+    DOUBLE = 3
+    TRIPLE = 4
+    QUAD = 5
+
+
+class StudyDesignEnums(BaseModel):
+    randomization_strategy: RandomizationStrategy
+    masking: Masking
 
 
 class MetaDataBase(BaseModel):
@@ -65,7 +78,7 @@ class DAGEntity(StrHashableBaseModel):
         # need to fix
         return DAGEntity.clean_str(self.name)
 
-    @validator("name", pre=True, always=True)
+    @field_validator("name")
     def clean_for_db(cls, val):
         if isinstance(val, str):
             return DAGEntity.clean_str(val)
