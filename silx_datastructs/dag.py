@@ -4,7 +4,7 @@ from enum import Enum
 from pydantic import BaseModel, field_validator
 
 
-class NodeType(Enum):
+class NodeType(str, Enum):
     BASELINE = 1
     INTERVENTION = 2
     CONDITION = 3
@@ -13,14 +13,14 @@ class NodeType(Enum):
     CONFOUNDER = 6
 
 
-class RandomizationStrategy(Enum):
+class RandomizationStrategy(str, Enum):
     NONE = 1
     RCT = 2  # Randomized control trial
     SSR = 3  # Survey with random sampling
     RCTRS = 4  # Randomized control with random sampling
 
 
-class Masking(Enum):
+class Masking(str, Enum):
     NONE = 1
     SINGLE = 2
     DOUBLE = 3
