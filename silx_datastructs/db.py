@@ -36,6 +36,14 @@ class KeyBase(BaseModel):
     def causes_targets(self):
         raise NotImplementedError()
 
+    def to_redis_key(self) -> str:
+        json_str = str(self)
+        redis_str = json_str.replace(":", _COLON_REPLACEMENT)
+        return redis_str
+
+
+_COLON_REPLACEMENT = "-|-"
+
 
 class NodeKey(KeyBase):
     entity: DAGEntity
@@ -49,6 +57,12 @@ class NodeKey(KeyBase):
 
     def causes_targets(self) -> tuple[None, str]:
         return None, str(self.entity)
+
+    @staticmethod
+    def from_redis_key(k: str) -> "NodeKey":
+        json_str = k.replace(_COLON_REPLACEMENT, ":")
+        nk = NodeKey.model_validate_json(json_str)
+        return nk
 
 
 UNIVERSAL_CONTEXT_KEY = NodeKey(
@@ -80,6 +94,12 @@ class EdgeKey(KeyBase):
     def causes_targets(self) -> tuple[list[str], str]:
         return [self.src.entity.name], self.dst.entity.name
 
+    @staticmethod
+    def from_redis_key(k: str) -> "EdgeKey":
+        json_str = k.replace(_COLON_REPLACEMENT, ":")
+        ek = EdgeKey.model_validate_json(json_str)
+        return ek
+
 
 class HyperEdgeKey(KeyBase):
     edges: list[EdgeKey]
@@ -108,6 +128,12 @@ class HyperEdgeKey(KeyBase):
         causes = [e.src.entity.name for e in self.edges]
         targets = [e.dst.entity.name for e in self.edges]
         return causes, targets
+
+    @staticmethod
+    def from_redis_key(k: str) -> "HyperEdgeKey":
+        json_str = k.replace(_COLON_REPLACEMENT, ":")
+        hek = HyperEdgeKey.model_validate_json(json_str)
+        return hek
 
 
 class HyperEdgeKeyStringList(BaseModel):

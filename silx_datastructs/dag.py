@@ -17,7 +17,7 @@ class RandomizationStrategy(Enum):
     NONE = 1
     RCT = 2  # Randomized control trial
     SSR = 3  # Survey with random sampling
-    RCTRS = 4 # Randomized control with random sampling
+    RCTRS = 4  # Randomized control with random sampling
 
 
 class Masking(Enum):
