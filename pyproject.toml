@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "silx-datastructs"
-version = "0.1.20"
+version = "0.2.0"
 description = "Datastructures for inter-system communication"
 authors = ["Michael Samsom <mike.samsom@asica.ca>"]
 readme = "README.md"

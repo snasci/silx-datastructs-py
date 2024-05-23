@@ -1,3 +1,4 @@
+import json
 from pydantic import BaseModel
 
 from .dag import DAGEntity, NodeType
@@ -40,8 +41,11 @@ class NodeKey(KeyBase):
     entity: DAGEntity
     node_type: NodeType
 
-    def __str__(self) -> str:
+    def print(self) -> str:
         return f"{self.entity}"
+
+    def __str__(self) -> str:
+        return self.model_dump_json()
 
     def causes_targets(self) -> tuple[None, str]:
         return None, str(self.entity)
@@ -64,8 +68,11 @@ class EdgeKey(KeyBase):
     def __len__(self) -> int:
         return 1
 
-    def __str__(self) -> str:
+    def print(self) -> str:
         return f"{self.src}{DIGRAPH_NODE_SEPARATOR}{self.dst}"
+
+    def __str__(self) -> str:
+        return self.model_dump_json()
 
     def as_tuple(self) -> tuple[str, str]:
         return self.src.entity.name, self.dst.entity.name
@@ -84,9 +91,18 @@ class HyperEdgeKey(KeyBase):
     def __hash__(self) -> int:
         return super().__hash__()
 
-    def __str__(self) -> str:
+    def print(self) -> str:
         self.edges.sort(key=lambda x: str(x.src) + str(x.dst))
         return EDGE_SEPARATOR.join(map(str, self.edges))
+
+    def __str__(self) -> str:
+        d = self.model_dump()
+        # sort keys for comparisons
+        d["edges"].sort(
+            key=lambda e: str(e["src"]["entity"]["name"])
+            + str(e["dst"]["entity"]["name"])
+        )
+        return json.dumps(d)
 
     def causes_targets(self) -> tuple[list[str], list[str]]:
         causes = [e.src.entity.name for e in self.edges]
