@@ -36,6 +36,12 @@ class TestDB(unittest.TestCase):
 
         recovered = db.EdgeKey.from_redis_key(rk)
         self.assertEqual(self.ed1, recovered)
+        self.assertIsInstance(self.ed1.contains_node_by_name("a"), db.NodeKey)
+        self.assertIsNone(self.ed1.contains_node_by_name("c"))
+        self.ed1.rename_node("a", "n")
+        self.assertIsInstance(self.ed1.contains_node_by_name("n"), db.NodeKey)
+        self.assertIsInstance(self.ed1.contains_node_by_name("b"), db.NodeKey)
+        self.ed1.rename_node("n", "a")
 
     def test_hyper_edge_key(self):
         self.assertEqual(self.he1, self.he2)
@@ -46,6 +52,14 @@ class TestDB(unittest.TestCase):
         recovered = db.HyperEdgeKey.from_redis_key(rk)
         self.assertEqual(recovered, self.he1)
         self.assertEqual(recovered, self.he2)
+
+        self.assertIsInstance(self.he1.contains_node_by_name("a"), db.NodeKey)
+        self.assertIsInstance(self.he1.contains_node_by_name("b"), db.NodeKey)
+        self.assertIsInstance(self.he1.contains_node_by_name("c"), db.NodeKey)
+        self.assertIsNone(self.he1.contains_node_by_name("z"))
+
+        self.he1.rename_node("a", "y")
+        self.assertIsInstance(self.he1.contains_node_by_name("y"), db.NodeKey)
 
 
 if __name__ == "__main__":

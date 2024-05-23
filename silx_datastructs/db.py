@@ -94,6 +94,24 @@ class EdgeKey(KeyBase):
     def causes_targets(self) -> tuple[list[str], str]:
         return [self.src.entity.name], self.dst.entity.name
 
+    def contains_node_by_name(self, query: str) -> NodeKey | None:
+        if self.src.entity.name == query:
+            return self.src
+        elif self.dst.entity.name == query:
+            return self.dst
+        else:
+            return None
+
+    def rename_node(self, old_name: str, new_name: str) -> bool:
+        renamed = False
+        if self.src.entity.name == old_name:
+            self.src.entity.name = new_name
+            renamed = True
+        if self.dst.entity.name == old_name:
+            self.dst.entity.name = new_name
+            renamed = True
+        return renamed
+
     @staticmethod
     def from_redis_key(k: str) -> "EdgeKey":
         json_str = k.replace(_COLON_REPLACEMENT, ":")
@@ -128,6 +146,20 @@ class HyperEdgeKey(KeyBase):
         causes = [e.src.entity.name for e in self.edges]
         targets = [e.dst.entity.name for e in self.edges]
         return causes, targets
+
+    def contains_node_by_name(self, query: str) -> NodeKey | None:
+        for ek in self.edges:
+            r = ek.contains_node_by_name(query)
+            if r is not None:
+                return r
+        return None
+
+    def rename_node(self, old_name: str, new_name: str) -> bool:
+        renamed = False
+        for ek in self.edges:
+            r = ek.rename_node(old_name, new_name)
+            renamed = renamed or r
+        return renamed
 
     @staticmethod
     def from_redis_key(k: str) -> "HyperEdgeKey":
