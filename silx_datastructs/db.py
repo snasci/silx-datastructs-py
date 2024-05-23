@@ -7,16 +7,6 @@ EDGE_SEPARATOR = "<||>"
 DIGRAPH_NODE_SEPARATOR = "->"
 
 
-def hyper_edge_string_to_entities(hyper_str: str) -> list[str]:
-    edges: list[str] = hyper_str.split(EDGE_SEPARATOR)
-    nodes: list[str] = []
-    for edge in edges:
-        s, e = edge.split(DIGRAPH_NODE_SEPARATOR)
-        nodes.append(s)
-        nodes.append(e)
-    return nodes
-
-
 class NodeMetaData(BaseModel):
     name: str
     canonical_unit: str
@@ -112,6 +102,9 @@ class EdgeKey(KeyBase):
             renamed = True
         return renamed
 
+    def node_names(self) -> list[str]:
+        return [self.src.entity.name, self.dst.entity.name]
+
     @staticmethod
     def from_redis_key(k: str) -> "EdgeKey":
         json_str = k.replace(_COLON_REPLACEMENT, ":")
@@ -160,6 +153,12 @@ class HyperEdgeKey(KeyBase):
             r = ek.rename_node(old_name, new_name)
             renamed = renamed or r
         return renamed
+
+    def node_names(self) -> list[str]:
+        names: list[str] = []
+        for edge in self.edges:
+            names.extend(edge.node_names())
+        return names
 
     @staticmethod
     def from_redis_key(k: str) -> "HyperEdgeKey":
