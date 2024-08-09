@@ -28,9 +28,18 @@ class Masking(str, Enum):
     QUAD = 5
 
 
+class BiologicalMediator(str, Enum):
+    NONE = 1
+    PRESENT = 2
+    AFFECTS_BASELINE = 3
+    AFFECTS_OUTCOME = 4
+    AFFECTS_BASE_OUTCOME = 5
+
+
 class StudyDesignEnums(BaseModel):
     randomization_strategy: RandomizationStrategy
     masking: Masking
+    biological_mediator: BiologicalMediator = BiologicalMediator.NONE
 
 
 class MetaDataBase(BaseModel):
