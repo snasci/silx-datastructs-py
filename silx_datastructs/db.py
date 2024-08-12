@@ -178,6 +178,7 @@ def edge_to_hyper_edge_lookup(
 ) -> dict[EdgeKey, list[HyperEdgeKey]]:
     hyper_lookup: dict[EdgeKey, list[HyperEdgeKey]] = {}
     for hyper_edge in hyper_edges:
+
         for edge in hyper_edge.edges:
             if edge in hyper_lookup:
                 hyper_lookup[edge].append(hyper_edge)
@@ -200,5 +201,5 @@ class PaperDataColumn(BaseModel):
     data: list[TableElement]
 
 
-class PaperDataTablePayload:
+class PaperDataTablePayload(BaseModel):
     columns: list[PaperDataColumn]
