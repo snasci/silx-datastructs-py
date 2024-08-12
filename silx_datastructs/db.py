@@ -1,6 +1,8 @@
 import json
 from pydantic import BaseModel
 
+from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
+
 from .dag import DAGEntity, NodeType
 
 EDGE_SEPARATOR = "<||>"
@@ -183,3 +185,20 @@ def edge_to_hyper_edge_lookup(
                 hyper_lookup[edge] = [hyper_edge]
 
     return hyper_lookup
+
+
+class TableElement(BaseModel):
+    column: str
+    realization: VARIABLE_T
+    value: RAND_VAR_T
+    unit: str
+    is_outcome: bool = False
+
+
+class PaperDataColumn(BaseModel):
+    column: str
+    data: list[TableElement]
+
+
+class PaperDataTablePayload:
+    columns: list[PaperDataColumn]
