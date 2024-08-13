@@ -204,3 +204,9 @@ class PaperDataColumn(BaseModel):
 class PaperDataTablePayload(BaseModel):
     columns: list[PaperDataColumn]
     source: str
+
+
+class HyperEdgeData(BaseModel):
+    tables: list[PaperDataTablePayload]
+    edge_tags: str  # Redis TAG
+    node_tags: str
