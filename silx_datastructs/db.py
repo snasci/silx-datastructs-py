@@ -203,3 +203,4 @@ class PaperDataColumn(BaseModel):
 
 class PaperDataTablePayload(BaseModel):
     columns: list[PaperDataColumn]
+    source: str
