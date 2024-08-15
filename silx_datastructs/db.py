@@ -63,7 +63,6 @@ UNIVERSAL_CONTEXT_KEY = NodeKey(
 
 
 class NodeDomain(BaseModel):
-    entity: DAGEntity
     domain: set[str]
 
 
