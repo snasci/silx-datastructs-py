@@ -209,3 +209,19 @@ class HyperEdgeData(BaseModel):
     tables: list[PaperDataTablePayload]
     edge_tags: str  # Redis TAG
     node_tags: str
+
+
+# For type checking graph db inputs
+class GDBNode(BaseModel):
+    node_id: int
+
+    @property
+    def value(self) -> str:
+        return str(self.node_id)
+
+
+class GDBEdge(BaseModel):
+    src: GDBNode
+    dst: GDBNode
+    src_type: GDBNode
+    dst_type: GDBNode
