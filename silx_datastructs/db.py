@@ -237,8 +237,14 @@ class GDBEdge(NamedTuple):
 
 
 class GDBHyperEdgeHandler:
-    def __init__(self, hyper_edge: bytes) -> None:
-        he = hyper_edge.decode().split(":")
+    def __init__(self, hyper_edge: bytes | str) -> None:
+        if isinstance(hyper_edge, bytes):
+            he = hyper_edge.decode().split(":")
+        elif isinstance(hyper_edge, str):
+            he = hyper_edge.split(":")
+        else:
+            raise TypeError(f"Invalid input type {type(hyper_edge)}")
+
         if len(he) != 2:
             raise ValueError(
                 f"Invalid key, must have single ':' separating prefix '{hyper_edge}'"
@@ -261,7 +267,7 @@ class GDBHyperEdgeHandler:
             )
         return edge_data
 
-    def all_nodes(self) -> set[GDBNode]:
+    def nodes(self) -> set[GDBNode]:
         nodes: list[GDBNode] = []
         edges = self.edges()
         for edge in edges:
