@@ -19,6 +19,7 @@ class NodeMetaData(BaseModel):
     description_embedding: list[float] | None
 
 
+# TODO: deprecate unused classes
 class KeyBase(BaseModel):
     def __hash__(self) -> int:
         return hash(str(self))
@@ -213,8 +214,8 @@ class HyperEdgeData(BaseModel):
 
 
 # For type checking graph db inputs
-# Networkx serialization auto-casts to string, using BaseModel to do type translation
-class GDBNode(BaseModel):
+# Networkx serialization auto-casts to string
+class GDBNode(NamedTuple):
     node_id: int
     node_type: int
 
