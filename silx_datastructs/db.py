@@ -1,6 +1,6 @@
 import json
 from typing import NamedTuple
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
 
@@ -238,7 +238,12 @@ class GDBEdge(NamedTuple):
 
 class GDBHyperEdgeHandler:
     def __init__(self, hyper_edge: bytes) -> None:
-        self.hyper_edge = hyper_edge.decode()
+        he = hyper_edge.decode().split(":")
+        if len(he) != 2:
+            raise ValueError(
+                f"Invalid key, must have single ':' separating prefix '{hyper_edge}'"
+            )
+        self.hyper_edge = he[0]
 
     def edges(self) -> list[GDBEdge]:
         edges = self.hyper_edge.split(",")
