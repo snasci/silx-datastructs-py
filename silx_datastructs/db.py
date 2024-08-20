@@ -227,9 +227,6 @@ class GDBNode(NamedTuple):
     def node_type_nx(self) -> str:
         return str(self.node_type)
 
-    def __hash__(self) -> int:
-        return hash(f"{self.node_id},{self.node_type}")
-
 
 class GDBEdge(NamedTuple):
     src: GDBNode
