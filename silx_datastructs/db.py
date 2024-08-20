@@ -249,7 +249,7 @@ class GDBHyperEdgeHandler:
             raise ValueError(
                 f"Invalid key, must have single ':' separating prefix '{hyper_edge}'"
             )
-        self.hyper_edge = he[0]
+        self.hyper_edge = he[1]
 
     def edges(self) -> list[GDBEdge]:
         edges = self.hyper_edge.split(",")
