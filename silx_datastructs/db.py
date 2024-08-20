@@ -1,4 +1,5 @@
 import json
+from typing import NamedTuple
 from pydantic import BaseModel
 
 from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
@@ -212,16 +213,52 @@ class HyperEdgeData(BaseModel):
 
 
 # For type checking graph db inputs
+# Networkx serialization auto-casts to string, using BaseModel to do type translation
 class GDBNode(BaseModel):
     node_id: int
+    node_type: int
 
     @property
-    def value(self) -> str:
+    def node_id_nx(self) -> str:
         return str(self.node_id)
 
+    @property
+    def node_type_nx(self) -> str:
+        return str(self.node_type)
 
-class GDBEdge(BaseModel):
+    def __hash__(self) -> int:
+        return hash(f"{self.node_id},{self.node_type}")
+
+
+class GDBEdge(NamedTuple):
     src: GDBNode
     dst: GDBNode
-    src_type: GDBNode
-    dst_type: GDBNode
+
+
+class GDBHyperEdgeHandler:
+    def __init__(self, hyper_edge: bytes) -> None:
+        self.hyper_edge = hyper_edge.decode()
+
+    def edges(self) -> list[GDBEdge]:
+        edges = self.hyper_edge.split(",")
+        edge_data: list[GDBEdge] = []
+        for edge in edges:
+            edge = edge.replace("(", "").replace(")", "")
+            _src, _dst = edge.split(">")
+            src, src_type = _src.split(".")
+            dst, dst_type = _dst.split(".")
+            edge_data.append(
+                GDBEdge(
+                    src=GDBNode(node_id=int(src), node_type=int(src_type)),
+                    dst=GDBNode(node_id=int(dst), node_type=int(dst_type)),
+                )
+            )
+        return edge_data
+
+    def all_nodes(self) -> set[GDBNode]:
+        nodes: list[GDBNode] = []
+        edges = self.edges()
+        for edge in edges:
+            nodes.append(edge.src)
+            nodes.append(edge.dst)
+        return set(nodes)
