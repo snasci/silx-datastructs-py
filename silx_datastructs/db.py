@@ -227,6 +227,9 @@ class GDBNode(NamedTuple):
     def node_type_nx(self) -> str:
         return str(self.node_type)
 
+    def __str__(self) -> str:
+        return f"{self.node_id}.{self.node_type}"
+
 
 class GDBEdge(NamedTuple):
     src: GDBNode
@@ -235,6 +238,17 @@ class GDBEdge(NamedTuple):
     @property
     def str_edge(self) -> str:
         return f"{self.src.node_id_nx}>{self.dst.node_id_nx}"
+
+    def __str__(self) -> str:
+        return f"({self.src}>{self.dst})"
+
+
+class GDBHyperEdge(NamedTuple):
+    edges: list[GDBEdge]
+
+    def __str__(self) -> str:
+        self.edges.sort(key=lambda x: x.str_edge)
+        return ",".join(map(str, self.edges))
 
 
 class GDBHyperEdgeHandler:
