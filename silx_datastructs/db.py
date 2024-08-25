@@ -1,5 +1,5 @@
 import json
-from typing import NamedTuple
+from typing import NamedTuple, final
 from pydantic import BaseModel, ValidationError
 
 from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
@@ -231,6 +231,10 @@ class GDBNode(NamedTuple):
 class GDBEdge(NamedTuple):
     src: GDBNode
     dst: GDBNode
+
+    @property
+    def str_edge(self) -> str:
+        return f"{self.src.node_id_nx}>{self.dst.node_id_nx}"
 
 
 class GDBHyperEdgeHandler:
