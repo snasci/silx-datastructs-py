@@ -293,7 +293,7 @@ class GDBHyperEdgeHandler:
         return set(nodes)
 
     # interface for future type translation functions
-    def to_generic_types(self) -> tuple[GENERIC_GRAPH_T, dict[Hashable, Hashable]]:
+    def to_generic_graph(self) -> tuple[GENERIC_GRAPH_T, dict[Hashable, Hashable]]:
         # gets info from
         edges = self.edges()
         g = []
