@@ -9,6 +9,7 @@ from pydantic import BaseModel, field_validator
 GENERIC_NODE_T = Hashable | Enum
 GENERIC_EDGE_T = tuple[GENERIC_NODE_T, GENERIC_NODE_T]
 GENERIC_GRAPH_T = set[GENERIC_EDGE_T]
+SEMANTIC_GRAPH_T = set[tuple[str, str]]
 INTERTYPE_MAP_T = Callable[[GENERIC_NODE_T], GENERIC_NODE_T]
 SEMANTIC_MAP_T = Callable[[GENERIC_NODE_T], str]
 
