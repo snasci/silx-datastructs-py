@@ -1,4 +1,4 @@
-from typing import Any, Callable, Hashable, Optional
+from typing import Any, Callable, Hashable, Optional, Protocol
 from enum import Enum
 
 from pydantic import BaseModel, field_validator
@@ -10,8 +10,14 @@ GENERIC_NODE_T = Hashable | Enum
 GENERIC_EDGE_T = tuple[GENERIC_NODE_T, GENERIC_NODE_T]
 GENERIC_GRAPH_T = set[GENERIC_EDGE_T]
 SEMANTIC_GRAPH_T = set[tuple[str, str]]
-INTERTYPE_MAP_T = Callable[[GENERIC_NODE_T], GENERIC_NODE_T]
-SEMANTIC_MAP_T = Callable[[GENERIC_NODE_T], str]
+
+
+class IntertypeFunctor(Protocol):
+    def __call__(self, node: GENERIC_NODE_T) -> GENERIC_NODE_T: ...
+
+
+class SemanticFunctor(Protocol):
+    def __call__(self, node: GENERIC_NODE_T) -> str: ...
 
 
 # 2 level heirarchy type

@@ -4,7 +4,7 @@ from pydantic import BaseModel, ValidationError
 
 from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
 
-from .dag import GENERIC_GRAPH_T, DAGEntity, NodeType
+from .dag import GENERIC_GRAPH_T, INTERTYPE_MAP_T, DAGEntity, IntertypeFunctor, NodeType
 
 EDGE_SEPARATOR = "<||>"
 DIGRAPH_NODE_SEPARATOR = "->"
@@ -293,7 +293,26 @@ class GDBHyperEdgeHandler:
         return set(nodes)
 
     # interface for future type translation functions
-    def generic_graph(self) -> GENERIC_GRAPH_T:
-        # Only returns actual level
+    def to_generic_types(self) -> tuple[GENERIC_GRAPH_T, dict[int, int]]:
+        # gets info from
         edges = self.edges()
-        return set([(e.src.node_id, e.dst.node_id) for e in edges])
+        g = []
+        m: dict[int, int] = {}
+        for e in edges:
+            g.append((e.src.node_id, e.dst.node_id))
+            if e.src.node_id in m:
+                if m[e.src.node_id] != e.src.node_type:
+                    raise ValueError(
+                        f"Invalid map defined, {e.src.node_id} maps to multiple values: "
+                        f"{e.src.node_type}, {m[e.src.node_id]}"
+                    )
+            m[e.dst.node_id] = e.dst.node_type
+            if e.dst.node_id in m:
+                if m[e.dst.node_id] != e.dst.node_type:
+                    raise ValueError(
+                        f"Invalid map defined, {e.dst.node_id} maps to multiple values:"
+                        f"{e.dst.node_type}, {m[e.dst.node_id]}"
+                    )
+            m[e.dst.node_id] = e.dst.node_type
+
+        return set(g), m
