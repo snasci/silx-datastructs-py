@@ -306,7 +306,8 @@ class GDBHyperEdgeHandler:
                         f"Invalid map defined, {e.src.node_id} maps to multiple values: "
                         f"{e.src.node_type}, {m[e.src.node_id]}"
                     )
-            m[e.dst.node_id] = e.dst.node_type
+            m[e.src.node_id] = e.src.node_type
+
             if e.dst.node_id in m:
                 if m[e.dst.node_id] != e.dst.node_type:
                     raise ValueError(
