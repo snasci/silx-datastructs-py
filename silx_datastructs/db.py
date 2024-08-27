@@ -1,5 +1,5 @@
 import json
-from typing import NamedTuple, final
+from typing import Hashable, NamedTuple, final
 from pydantic import BaseModel, ValidationError
 
 from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
@@ -293,11 +293,11 @@ class GDBHyperEdgeHandler:
         return set(nodes)
 
     # interface for future type translation functions
-    def to_generic_types(self) -> tuple[GENERIC_GRAPH_T, dict[int, int]]:
+    def to_generic_types(self) -> tuple[GENERIC_GRAPH_T, dict[Hashable, Hashable]]:
         # gets info from
         edges = self.edges()
         g = []
-        m: dict[int, int] = {}
+        m: dict[Hashable, Hashable] = {}
         for e in edges:
             g.append((e.src.node_id, e.dst.node_id))
             if e.src.node_id in m:
