@@ -4,7 +4,7 @@ from pydantic import BaseModel, ValidationError
 
 from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
 
-from .dag import DAGEntity, NodeType
+from .dag import GENERIC_GRAPH_T, DAGEntity, NodeType
 
 EDGE_SEPARATOR = "<||>"
 DIGRAPH_NODE_SEPARATOR = "->"
@@ -215,6 +215,8 @@ class HyperEdgeData(BaseModel):
 
 # For type checking graph db inputs
 # Networkx serialization auto-casts to string
+# NOTE: These classes imply a 2 level fixed hierarchy
+#       will need to move to a more generic structure later
 class GDBNode(NamedTuple):
     node_id: int
     node_type: int

@@ -1,9 +1,10 @@
-from typing import Any, Optional
+from typing import Any, Callable, Hashable, Optional
 from enum import Enum
 
 from pydantic import BaseModel, field_validator
 
 
+# 2 level heirarchy type
 class NodeType(str, Enum):
     BASELINE = 1
     INTERVENTION = 2
