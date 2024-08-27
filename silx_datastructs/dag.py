@@ -4,6 +4,15 @@ from enum import Enum
 from pydantic import BaseModel, field_validator
 
 
+# future types (for >2 level node heirarchies)
+# Node can be an enum for small/hardcoded sets
+GENERIC_NODE_T = Hashable | Enum
+GENERIC_EDGE_T = tuple[GENERIC_NODE_T, GENERIC_NODE_T]
+GENERIC_GRAPH_T = set[GENERIC_EDGE_T]
+INTERTYPE_MAP_T = Callable[[GENERIC_NODE_T], GENERIC_NODE_T]
+SEMANTIC_MAP_T = Callable[[GENERIC_NODE_T], str]
+
+
 # 2 level heirarchy type
 class NodeType(str, Enum):
     BASELINE = 1

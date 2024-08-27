@@ -291,3 +291,9 @@ class GDBHyperEdgeHandler:
             nodes.append(edge.src)
             nodes.append(edge.dst)
         return set(nodes)
+
+    # interface for future type translation functions
+    def generic_graph(self) -> GENERIC_GRAPH_T:
+        # Only returns actual level
+        edges = self.edges()
+        return set([(e.src.node_id, e.dst.node_id) for e in edges])
