@@ -4,7 +4,7 @@ from pydantic import BaseModel, ValidationError
 
 from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
 
-from .dag import GENERIC_GRAPH_T, INTERTYPE_MAP_T, DAGEntity, IntertypeFunctor, NodeType
+from .dag import GENERIC_GRAPH_T, DAGEntity, NodeType
 
 EDGE_SEPARATOR = "<||>"
 DIGRAPH_NODE_SEPARATOR = "->"

@@ -1,4 +1,4 @@
-from typing import Any, Callable, Hashable, Optional, Protocol
+from typing import Any, Hashable, Optional, Protocol
 from enum import Enum
 
 from pydantic import BaseModel, field_validator
