@@ -1,6 +1,6 @@
 import json
-from typing import Hashable, NamedTuple, final
-from pydantic import BaseModel, ValidationError
+from typing import Hashable, NamedTuple
+from pydantic import BaseModel
 
 from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
 
