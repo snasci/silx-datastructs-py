@@ -1,7 +1,10 @@
 import unittest
 
+import numpy as np
+
 from silx_datastructs import dag
 from silx_datastructs import db
+from silx_datastructs import distributions
 
 
 class TestDB(unittest.TestCase):
@@ -65,6 +68,56 @@ class TestDB(unittest.TestCase):
         s = "data:(2.6>3.3),(2.6>4.1),(2.6>5.1),(2.6>5.1),(2.6>6.1),(2.6>6.1),(2.6>6.1),(2.6>7.1),(2.6>7.1),(2.6>7.1),(2.6>7.1),(2.6>7.1),(2.6>7.1),(2.6>7.1),(2.6>8.1),(2.6>9.1),(2.6>10.1),(2.6>11.1),(2.6>12.1),(2.6>13.1),(2.6>14.1),(2.6>15.1),(2.6>16.1),(2.6>17.1),(2.6>18.1),(2.6>19.1),(2.6>20.1),(2.6>21.1),(2.6>22.1),(2.6>23.1),(2.6>24.1),(2.6>25.1),(2.6>26.1),(2.6>27.1),(2.6>28.1),(2.6>29.1),(2.6>30.1),(2.6>31.1),(2.6>32.1),(2.6>33.1),(2.6>34.1),(2.6>35.1),(2.6>36.1),(2.6>37.1),(2.6>38.1),(2.6>39.1),(2.6>40.1),(2.6>41.1),(2.6>41.1),(2.6>42.1),(2.6>42.1),(2.6>42.1),(2.6>43.1),(2.6>43.1),(2.6>44.1),(2.6>44.1),(2.6>44.1),(2.6>44.1),(2.6>45.1),(2.6>45.1),(2.6>45.1),(2.6>45.1),(2.6>45.1),(2.6>46.1),(2.6>46.1),(2.6>47.1),(2.6>47.1),(2.6>48.1),(2.6>48.1),(2.6>48.1),(2.6>49.1),(2.6>49.1),(2.6>49.1),(2.6>50.1),(2.6>50.1),(2.6>50.1),(3.3>51.4),(4.1>51.4),(5.1>51.4),(5.1>51.4),(6.1>51.4),(6.1>51.4),(6.1>51.4),(7.1>51.4),(7.1>51.4),(7.1>51.4),(7.1>51.4),(7.1>51.4),(7.1>51.4),(7.1>51.4),(8.1>51.4),(9.1>51.4),(10.1>51.4),(11.1>51.4),(12.1>51.4),(13.1>51.4),(14.1>51.4),(15.1>51.4),(16.1>51.4),(17.1>51.4),(18.1>51.4),(19.1>51.4),(20.1>51.4),(21.1>51.4),(22.1>51.4),(23.1>51.4),(24.1>51.4),(25.1>51.4),(26.1>51.4),(27.1>51.4),(28.1>51.4),(29.1>51.4),(30.1>51.4),(31.1>51.4),(32.1>51.4),(33.1>51.4),(34.1>51.4),(35.1>51.4),(36.1>51.4),(37.1>51.4),(38.1>51.4),(39.1>51.4),(40.1>51.4),(41.1>51.4),(41.1>51.4),(42.1>51.4),(42.1>51.4),(42.1>51.4),(43.1>51.4),(43.1>51.4),(44.1>51.4),(44.1>51.4),(44.1>51.4),(44.1>51.4),(45.1>51.4),(45.1>51.4),(45.1>51.4),(45.1>51.4),(45.1>51.4),(46.1>51.4),(46.1>51.4),(47.1>51.4),(47.1>51.4),(48.1>51.4),(48.1>51.4),(48.1>51.4),(49.1>51.4),(49.1>51.4),(49.1>51.4),(50.1>51.4),(50.1>51.4),(50.1>51.4),(52.2>51.4)"
         handler = db.GDBHyperEdgeHandler(s)
         self.assertIsInstance(handler.nodes(), set)
+
+
+class TestDistributions(unittest.TestCase):
+    def test_single_count_prob(self):
+        good = distributions.SingleCountProbability(
+            name="a", numerator=10, denominator=40
+        )
+        bad = distributions.SingleCountProbability(name="b", numerator=4, denominator=2)
+        self.assertEqual(good.p(), 0.25)
+        self.assertTrue(good.is_valid())
+        self.assertFalse(bad.is_valid())
+
+    def test_count_distribution(self):
+        d1 = distributions.SingleCountProbability(
+            name="male", numerator=4, denominator=10
+        )
+        d2 = distributions.SingleCountProbability(
+            name="female", numerator=6, denominator=10
+        )
+        d3 = distributions.SingleCountProbability(
+            name="bad", numerator=6, denominator=14
+        )
+        good = distributions.CountDistribution(probabilities=[d1, d2])
+        bad1 = distributions.CountDistribution(probabilities=[d1, d2, d3])
+        bad2 = distributions.CountDistribution(probabilities=[d1, d1])
+
+        self.assertTrue(good.is_valid())
+        self.assertFalse(bad1.is_valid())
+        self.assertFalse(bad2.is_valid())
+
+        n1 = good.name_lookup("male")
+        self.assertEqual(n1, d1)
+
+        generated = good.generate()
+        self.assertEqual(len(generated), 10)
+
+        self.assertRaises(ValueError, bad1.generate)
+        self.assertRaises(ValueError, bad2.generate)
+
+    def test_normal_distribution(self):
+        good = distributions.NormalDistribution(mu=4, sigma=2, N=400)
+        bad = distributions.NormalDistribution(mu=-2, sigma=0, N=0)
+
+        self.assertTrue(good.is_valid())
+        self.assertFalse(bad.is_valid())
+
+        generated = good.generate()
+        m = np.mean(generated)
+        self.assertEqual(len(generated), 400)
+        self.assertAlmostEqual(m, 4.0, places=1)
 
 
 if __name__ == "__main__":
