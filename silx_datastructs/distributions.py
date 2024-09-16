@@ -1,8 +1,8 @@
 from typing import Protocol, Union, Optional
 from itertools import groupby
 
+import numpy.random as rand
 from pydantic import BaseModel
-from scipy.stats import norm, lognorm
 
 from .dag import CatRange
 
@@ -67,14 +67,7 @@ class NormalDistribution(BaseModel):
         return True
 
     def generate(self) -> list[float]:
-        rv = norm(loc=self.mu, scale=self.sigma)
-        try:
-            values = rv.rvs(size=self.N)
-        except Exception as e:
-            raise ValueError(
-                f"Failed to generate N(mu={self.mu}, sigma={self.sigma}) n={self.N}; {e}"
-            )
-        return list(values)
+        return list(rand.normal(self.mu, self.sigma, self.N))
 
 
 class LogNormalDistribution(BaseModel):
@@ -88,14 +81,7 @@ class LogNormalDistribution(BaseModel):
         return True
 
     def generate(self) -> list[float]:
-        rv = lognorm(loc=self.mu, scale=self.sigma)
-        try:
-            values = rv.rvs(size=self.N)
-        except Exception as e:
-            raise ValueError(
-                f"Failed to generate N(mu={self.mu}, sigma={self.sigma}) n={self.N}; {e}"
-            )
-        return list(values)
+        return list(rand.lognormal(self.mu, self.sigma, self.N))
 
 
 # Deprecated
