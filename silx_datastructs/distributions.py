@@ -130,6 +130,7 @@ class ExponentialSurvivalDistribution(BaseModel):
     def generate(self) -> list[float]:
         beta_0 = np.log(self.lower_ci)
         beta_1 = np.log(self.upper_ci)
+        raise NotImplementedError("Not ready yet")
 
 
 # Deprecated
