@@ -202,58 +202,41 @@ class TableElement(BaseModel):
     unit: str
 
 
-class PaperDataColumnIntermediate(BaseModel):
-    column: str
-    data: list[TableElement]
-
-
-class PaperDataColumn(BaseModel):
-    column: str
-    data: TableElement
-
-
 def _all_equal(iterator):
     g = groupby(iterator)
     return next(g, True) and not next(g, False)
 
 
 def consolidate_count_distributions(
-    intermediate_column: PaperDataColumnIntermediate,
-) -> PaperDataColumn:
-    t = type(intermediate_column.data[0])
+    col: str,
+    data: list[TableElement],
+) -> TableElement:
+    if not data:
+        raise ValueError("No data")
+    t = type(data[0])
     if t == SingleCountProbability:
         # make sure all same type
         probs: list[SingleCountProbability] = []
         units = []
-        for te in intermediate_column.data:
+        for te in data:
             dist = te.distribution
             if not isinstance(dist, SingleCountProbability):
-                raise ValueError(
-                    f"Invalid PaperDataColumnIntermediate: {intermediate_column}"
-                )
+                raise ValueError(f"Invalid data column: {data}")
             probs.append(dist)
             units.append(te.unit)
 
         if not _all_equal(units):
             raise ValueError(f"Units in counts not all equal: {units}")
-        col = intermediate_column.column
 
-        return PaperDataColumn(
+        return TableElement(
             column=col,
-            data=TableElement(
-                column=col,
-                distribution=CountDistribution(probabilities=probs),
-                unit=units[0],
-            ),
+            distribution=CountDistribution(probabilities=probs),
+            unit=units[0],
         )
     else:
-        if len(intermediate_column.data) != 1:
-            raise ValueError(
-                f"Invalid PaperDataColumnIntermediate: {intermediate_column}"
-            )
-        return PaperDataColumn(
-            column=intermediate_column.column, data=intermediate_column.data[0]
-        )
+        if len(data) != 1:
+            raise ValueError(f"Invalid data column: {data}")
+        return data[0]
 
 
 class PaperDataTableRow(BaseModel):
