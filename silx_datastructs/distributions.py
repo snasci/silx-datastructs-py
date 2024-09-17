@@ -189,6 +189,7 @@ DISTRIBUTION_T = Union[
     LogNormalDistribution,
     DoDistribution,
     NormalHazardRatio,
+    MissingData,
 ]
 
 

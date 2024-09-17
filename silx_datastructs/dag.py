@@ -232,7 +232,9 @@ class InterventionNode(DAGNode):
 
 
 def generate_placebo_intervention(
-    source: str, meta: Optional[InterventionMetaData] = None
+    source: str,
+    N: int,
+    meta: Optional[InterventionMetaData] = None,
 ) -> InterventionNode:
     return InterventionNode(
         entity=DAGEntity(
@@ -251,6 +253,11 @@ def generate_placebo_intervention(
         realization=Realization(value=True),
         source=source,
         meta=meta,
+        dist_params=DistributionParams(
+            param=Realization(value=True),
+            param_type="Intervention",
+            n=N,
+        ),
     )
 
 
