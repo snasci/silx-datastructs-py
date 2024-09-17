@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Protocol, Union, Optional
+from typing import Union, Optional
 from itertools import groupby
 
 import numpy as np
@@ -11,10 +11,6 @@ from .dag import CatRange
 def _all_equal(iterable):
     g = groupby(iterable)
     return next(g, True) and not next(g, False)
-
-
-class DistributionProtocol(Protocol):
-    def generate(self) -> list: ...
 
 
 class SingleCountProbability(BaseModel):
@@ -156,7 +152,15 @@ class MissingData(BaseModel):
 
 
 class DoStatement(BaseModel):
-    realization: str | bool | int | float | CatRange
+    value: str | bool | int | float | CatRange
+
+
+class DoDistribution(BaseModel):
+    value: str | bool | int | float
+    N: int
+
+    def generate(self) -> list[str | bool | int | float]:
+        return [self.value] * self.N
 
 
 class ConditionCategory(BaseModel):
@@ -168,6 +172,7 @@ class ConstVar(BaseModel):
     value: str | int | float | CatRange
 
 
+# Deprecate
 RAND_VAR_T = Union[
     CountProbability,
     NormalDistribution,
@@ -176,6 +181,14 @@ RAND_VAR_T = Union[
     DoStatement,
     ConditionCategory,
     NormalDistribution,
+]
+
+DISTRIBUTION_T = Union[
+    CountDistribution,
+    NormalDistribution,
+    LogNormalDistribution,
+    DoDistribution,
+    NormalHazardRatio,
 ]
 
 
