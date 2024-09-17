@@ -146,6 +146,7 @@ class CountProbability(BaseModel):
         return self.n / self.total
 
 
+# deprecated
 class CoxLogRank(BaseModel):
     hr: float
     sigma: float
@@ -176,7 +177,7 @@ RAND_VAR_T = Union[
     MissingData,
     DoStatement,
     ConditionCategory,
-    CoxLogRank,
+    NormalDistribution,
 ]
 
 
