@@ -1,8 +1,15 @@
+from itertools import groupby
 import json
 from typing import Hashable, NamedTuple
 from pydantic import BaseModel
 
-from silx_datastructs.distributions import RAND_VAR_T, VARIABLE_T
+from silx_datastructs.distributions import (
+    DISTRIBUTION_T,
+    RAND_VAR_T,
+    VARIABLE_T,
+    CountDistribution,
+    SingleCountProbability,
+)
 
 from .dag import GENERIC_GRAPH_T, DAGEntity, NodeType
 
@@ -191,24 +198,72 @@ def edge_to_hyper_edge_lookup(
 
 class TableElement(BaseModel):
     column: str
-    realization: VARIABLE_T
-    value: RAND_VAR_T
+    distribution: DISTRIBUTION_T | SingleCountProbability
     unit: str
-    is_outcome: bool = False
 
 
-class PaperDataColumn(BaseModel):
+class PaperDataColumnIntermediate(BaseModel):
     column: str
     data: list[TableElement]
 
 
-class PaperDataTablePayload(BaseModel):
-    columns: list[PaperDataColumn]
+class PaperDataColumn(BaseModel):
+    column: str
+    data: TableElement
+
+
+def _all_equal(iterator):
+    g = groupby(iterator)
+    return next(g, True) and not next(g, False)
+
+
+def consolidate_count_distributions(
+    intermediate_column: PaperDataColumnIntermediate,
+) -> PaperDataColumn:
+    t = type(intermediate_column.data[0])
+    if t == SingleCountProbability:
+        # make sure all same type
+        probs: list[SingleCountProbability] = []
+        units = []
+        for te in intermediate_column.data:
+            dist = te.distribution
+            if not isinstance(dist, SingleCountProbability):
+                raise ValueError(
+                    f"Invalid PaperDataColumnIntermediate: {intermediate_column}"
+                )
+            probs.append(dist)
+            units.append(te.unit)
+
+        if not _all_equal(units):
+            raise ValueError(f"Units in counts not all equal: {units}")
+        col = intermediate_column.column
+
+        return PaperDataColumn(
+            column=col,
+            data=TableElement(
+                column=col,
+                distribution=CountDistribution(probabilities=probs),
+                unit=units[0],
+            ),
+        )
+    else:
+        if len(intermediate_column.data) != 1:
+            raise ValueError(
+                f"Invalid PaperDataColumnIntermediate: {intermediate_column}"
+            )
+        return PaperDataColumn(
+            column=intermediate_column.column, data=intermediate_column.data[0]
+        )
+
+
+class PaperDataTableRow(BaseModel):
+    columns: list[str]
+    data: list[TableElement]
     source: str
 
 
 class HyperEdgeData(BaseModel):
-    tables: list[PaperDataTablePayload]
+    tables: list[PaperDataTableRow]
     edge_tags: str  # Redis TAG
     node_tags: str
 

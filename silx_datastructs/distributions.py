@@ -3,8 +3,6 @@ from typing import Protocol, Union, Optional
 from itertools import groupby
 
 import numpy as np
-from numpy._core.multiarray import ndarray
-from scipy.stats import norm
 from pydantic import BaseModel
 
 from .dag import CatRange
