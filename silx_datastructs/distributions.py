@@ -112,6 +112,15 @@ def _risk_function(
             return risk.reshape(-1, 1)
 
 
+class NormalHazardRatio(BaseModel):
+    hazard_ratio: float
+    sigma: float
+    N: int
+
+    def generate(self) -> list[float]:
+        return list(np.random.normal(self.hazard_ratio, self.sigma, self.N))
+
+
 # Adapted from pysurvival lib
 class ExponentialSurvivalDistribution(BaseModel):
     hazard_rate: float
