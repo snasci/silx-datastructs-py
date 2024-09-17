@@ -272,7 +272,7 @@ def get_node_type(entity: DAGNode) -> NodeType:
         raise TypeError(f"Invalid input type {entity} type: {type(entity)}")
 
 
-def remove_local_repeats(nodelist: list[DAGNode] | None) -> list[DAGNode] | None:
+def remove_local_repeats(nodelist):
     if nodelist is None:
         return nodelist
     list_without_duplicates = []
@@ -362,7 +362,7 @@ class ProbabilityStatement(BaseModel):
         eq_v = (c_v, b_v, i_v, o_v, d_v)
         return eq_v
 
-    def remove_placebo_repeats(self):
+    def remove_repeats(self):
         self.baseline_entities = remove_local_repeats(self.baseline_entities)
         self.condition_entities = remove_local_repeats(self.condition_entities)
         self.intervention_entities = remove_local_repeats(self.intervention_entities)
