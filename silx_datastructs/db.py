@@ -207,7 +207,7 @@ def _all_equal(iterator):
     return next(g, True) and not next(g, False)
 
 
-def consolidate_count_distributions(
+def consolidate_distributions(
     col: str,
     data: list[TableElement],
 ) -> TableElement:
