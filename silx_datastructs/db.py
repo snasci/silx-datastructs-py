@@ -213,7 +213,7 @@ def consolidate_distributions(
 ) -> TableElement:
     if not data:
         raise ValueError("No data")
-    t = type(data[0])
+    t = type(data[0].distribution)
     if t == SingleCountProbability:
         # make sure all same type
         probs: list[SingleCountProbability] = []
