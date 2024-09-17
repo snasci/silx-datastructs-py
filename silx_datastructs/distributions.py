@@ -1,7 +1,10 @@
+from enum import Enum
 from typing import Protocol, Union, Optional
 from itertools import groupby
 
-import numpy.random as rand
+import numpy as np
+from numpy._core.multiarray import ndarray
+from scipy.stats import norm
 from pydantic import BaseModel
 
 from .dag import CatRange
@@ -67,7 +70,7 @@ class NormalDistribution(BaseModel):
         return True
 
     def generate(self) -> list[float]:
-        return list(rand.normal(self.mu, self.sigma, self.N))
+        return list(np.random.normal(self.mu, self.sigma, self.N))
 
 
 class LogNormalDistribution(BaseModel):
@@ -81,7 +84,43 @@ class LogNormalDistribution(BaseModel):
         return True
 
     def generate(self) -> list[float]:
-        return list(rand.lognormal(self.mu, self.sigma, self.N))
+        return list(np.random.lognormal(self.mu, self.sigma, self.N))
+
+
+class RiskType(Enum):
+    LINEAR = 0
+    SQUARE = 1
+    GAUSSIAN = 2
+
+
+def _risk_function(
+    x: np.ndarray,
+    w: np.ndarray,
+    risk_parameter: float,
+    risk_type: RiskType = RiskType.GAUSSIAN,
+) -> np.ndarray:
+    risk = np.dot(x, w)
+    match risk_type:
+        case RiskType.LINEAR:
+            return risk.reshape(-1, 1)
+        case RiskType.SQUARE:
+            risk = np.square(risk * risk_parameter)
+            return risk.reshape(-1, 1)
+        case RiskType.GAUSSIAN:
+            risk = np.square(risk)
+            risk = np.exp(-risk * risk_parameter)
+            return risk.reshape(-1, 1)
+
+
+# Adapted from pysurvival lib
+class ExponentialSurvivalDistribution(BaseModel):
+    hazard_rate: float
+    lower_ci: float
+    upper_ci: float
+
+    def generate(self) -> list[float]:
+        beta_0 = np.log(self.lower_ci)
+        beta_1 = np.log(self.upper_ci)
 
 
 # Deprecated
@@ -100,6 +139,7 @@ class CountProbability(BaseModel):
 class CoxLogRank(BaseModel):
     hr: float
     sigma: float
+    N: int
 
 
 class MissingData(BaseModel):
