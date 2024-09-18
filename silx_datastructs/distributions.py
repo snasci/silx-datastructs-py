@@ -162,6 +162,27 @@ class LogNormalDistribution(BaseModel):
     def generate(self) -> list[float]:
         return list(np.random.lognormal(self.mu, self.sigma, self.N))
 
+    def __add__(self, val):
+        # approximate
+        sigma_self_2 = self.sigma**2
+        sigma_val_2 = val.sigma**2
+
+        en_1 = np.exp(2 * self.mu + sigma_self_2) * (np.exp(sigma_self_2) - 1)
+        en_2 = np.exp(2 * val.mu + sigma_val_2) * (np.exp(sigma_val_2) - 1)
+        ed_1 = np.exp(self.mu + (self.sigma**2 / 2))
+        ed_2 = np.exp(val.mu + (val.sigma**2 / 2))
+
+        sigma_2 = np.log(((en_1 + en_2) / (ed_1 + ed_2) ** 2) + 1)
+
+        em_1 = np.exp(self.mu + (sigma_self_2 / 2))
+        em_2 = np.exp(val.mu + (sigma_val_2 / 2))
+
+        new_mu = np.log((em_1 + em_2) - 0.5 * sigma_2)
+        new_sigma = np.sqrt(sigma_2)
+
+        new_n = self.N + val.N
+        return LogNormalDistribution(mu=new_mu, sigma=new_sigma, N=new_n)
+
 
 class RiskType(Enum):
     LINEAR = 0
