@@ -1,9 +1,11 @@
 from enum import Enum
 from typing import Union, Optional
 from itertools import groupby
+from functools import reduce
 
 import numpy as np
 from pydantic import BaseModel
+
 
 from .dag import CatRange
 
@@ -24,19 +26,51 @@ class SingleCountProbability(BaseModel):
     def p(self) -> float:
         return self.numerator / self.denominator
 
+    def __add__(self, val):
+        if val.name != self.name:
+            raise ValueError(
+                f"Cannot add probabilities for different things {val.name}, {self.name}"
+            )
+        return SingleCountProbability(
+            name=self.name,
+            numerator=self.numerator + val.numerator,
+            denominator=self.denominator + val.denominator,
+        )
+
+    def __mul__(self, val):
+        if val.name != self.name:
+            raise ValueError(
+                f"Cannot add probabilities for different things {val.name}, {self.name}"
+            )
+        return SingleCountProbability(
+            name=self.name,
+            numerator=self.numerator * val.numerator,
+            denominator=self.denominator * val.denominator,
+        )
+
 
 class CountDistribution(BaseModel):
     probabilities: list[SingleCountProbability]
 
-    def is_valid(self) -> bool:
+    @property
+    def denominator(self) -> int:
+        return self.probabilities[0].denominator
+
+    def check(self) -> None:
         if not _all_equal(map(lambda x: x.denominator, self.probabilities)):
-            return False
+            raise ValueError("Invalid distribution: denominators not all equal")
         if not all(map(lambda x: x.is_valid(), self.probabilities)):
-            return False
+            raise ValueError("Invalid distribution: individual probabilities not valid")
         names = set(map(lambda x: x.name, self.probabilities))
         if len(names) != len(self.probabilities):
-            return False
-        return True
+            raise ValueError("Invalid distribution: repeated elements")
+        numerator_sum = reduce(
+            lambda a, b: a.numerator + b.numerator, self.probabilities
+        )
+        if numerator_sum != self.denominator:
+            raise ValueError(
+                "Invalid distribution: numerator sum not equal to denominator"
+            )
 
     def name_lookup(self, name: str) -> SingleCountProbability:
         for p in self.probabilities:
@@ -45,12 +79,55 @@ class CountDistribution(BaseModel):
         raise ValueError(f"{name} not found in probability list")
 
     def generate(self) -> list[str]:
-        if not self.is_valid():
-            raise ValueError(f"Invalid CountDistribution {self}")
+        self.check()
         output: list[str] = []
         for probability in self.probabilities:
             output.extend([probability.name] * probability.numerator)
         return output
+
+    def __add__(self, val):
+        val.check()
+        self.check()
+
+        # match names
+        my_probs = {p.name: p for p in self.probabilities}
+        input_probs = {p.name: p for p in val.probabilities}
+
+        if my_probs.keys() != input_probs.keys():
+            raise ValueError(
+                f"cannot add different distributions"
+                " {list(my_probs.keys())} {list(input_probs.keys())}"
+            )
+
+        new_probs: list[SingleCountProbability] = []
+        for k, mp in my_probs.items():
+            ip = input_probs[k]
+
+            new_probs.append(mp + ip)
+
+        return CountDistribution(probabilities=new_probs)
+
+    def __mul__(self, val):
+        val.check()
+        self.check()
+
+        # match names
+        my_probs = {p.name: p for p in self.probabilities}
+        input_probs = {p.name: p for p in val.probabilities}
+
+        if my_probs.keys() != input_probs.keys():
+            raise ValueError(
+                f"cannot add different distributions"
+                " {list(my_probs.keys())} {list(input_probs.keys())}"
+            )
+
+        new_probs: list[SingleCountProbability] = []
+        for k, mp in my_probs.items():
+            ip = input_probs[k]
+
+            new_probs.append(mp * ip)
+
+        return CountDistribution(probabilities=new_probs)
 
 
 class NormalDistribution(BaseModel):
@@ -58,13 +135,18 @@ class NormalDistribution(BaseModel):
     sigma: float
     N: int
 
-    def is_valid(self) -> bool:
+    def check(self) -> None:
         if self.mu < 0 or self.sigma < 0 or self.N < 1:
-            return False
-        return True
+            raise ValueError(f"Invalid distribution {self}")
 
     def generate(self) -> list[float]:
         return list(np.random.normal(self.mu, self.sigma, self.N))
+
+    def __add__(self, val):
+        new_mu = self.mu + val.mu
+        new_sigma = np.sqrt(self.sigma**2 + val.sigma**2)
+        new_n = self.N + val.N
+        return NormalDistribution(mu=new_mu, sigma=new_sigma, N=new_n)
 
 
 class LogNormalDistribution(BaseModel):
@@ -113,6 +195,9 @@ class NormalHazardRatio(BaseModel):
 
     def generate(self) -> list[float]:
         return list(np.random.normal(self.hazard_ratio, self.sigma, self.N))
+
+    def __add__(self, _):
+        raise SyntaxError("Unable to add NormalHazardRatio")
 
 
 # Adapted from pysurvival lib
