@@ -256,6 +256,9 @@ class CoxLogRank(BaseModel):
 class MissingData(BaseModel):
     dummy: Optional[str] = None
 
+    def __add__(self, _):
+        return MissingData(dummy=None)
+
 
 class DoStatement(BaseModel):
     value: str | bool | int | float | CatRange
@@ -267,6 +270,11 @@ class DoDistribution(BaseModel):
 
     def generate(self) -> list[str | bool | int | float]:
         return [self.value] * self.N
+
+    def __add__(self, val):
+        if val.value != self.value:
+            raise ValueError("Can't add do distributions with different names")
+        return DoDistribution(value=self.value, N=self.N + val.N)
 
 
 class ConditionCategory(BaseModel):
