@@ -5,8 +5,6 @@ from pydantic import BaseModel
 
 from silx_datastructs.distributions import (
     DISTRIBUTION_T,
-    RAND_VAR_T,
-    VARIABLE_T,
     CountDistribution,
     SingleCountProbability,
 )
