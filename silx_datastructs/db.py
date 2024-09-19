@@ -223,6 +223,18 @@ def consolidate_distributions(
             probs.append(dist)
             units.append(te.unit)
 
+        # Check for single boolean case
+        if len(probs) == 1:
+            if probs[0].name == "true":
+                numer = probs[0].numerator
+                denom = probs[0].denominator
+                nnumer = denom - numer
+                probs.append(
+                    SingleCountProbability(
+                        name="false", numerator=nnumer, denominator=denom
+                    )
+                )
+
         if not _all_equal(units):
             raise ValueError(f"Units in counts not all equal: {units}")
 
