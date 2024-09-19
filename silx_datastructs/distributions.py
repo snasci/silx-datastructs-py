@@ -64,12 +64,11 @@ class CountDistribution(BaseModel):
         names = set(map(lambda x: x.name, self.probabilities))
         if len(names) != len(self.probabilities):
             raise ValueError("Invalid distribution: repeated elements")
-        numerator_sum = reduce(
-            lambda a, b: a.numerator + b.numerator, self.probabilities
-        )
+        numerator_sum = sum(map(lambda p: p.numerator, self.probabilities))
         if numerator_sum != self.denominator:
             raise ValueError(
-                "Invalid distribution: numerator sum not equal to denominator"
+                f"Invalid distribution: numerator sum {numerator_sum}"
+                "not equal to denominator {self.denominator}"
             )
 
     def name_lookup(self, name: str) -> SingleCountProbability:
