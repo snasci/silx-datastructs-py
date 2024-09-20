@@ -20,6 +20,10 @@ class SingleCountProbability(BaseModel):
     numerator: int
     denominator: int
 
+    @property
+    def N(self) -> int:
+        return self.denominator
+
     def is_valid(self) -> bool:
         return self.numerator <= self.denominator
 
