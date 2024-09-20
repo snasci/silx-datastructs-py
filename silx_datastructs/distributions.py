@@ -146,6 +146,9 @@ class NormalDistribution(BaseModel):
         if self.mu < 0 or self.sigma < 0 or self.N < 1:
             raise ValueError(f"Invalid distribution {self}")
 
+    def rescale(self, val: int) -> None:
+        self.N = val
+
     def generate(self) -> list[float]:
         return list(np.random.normal(self.mu, self.sigma, self.N))
 
@@ -165,6 +168,9 @@ class LogNormalDistribution(BaseModel):
         if self.mu < 0 or self.sigma < 0 or self.N < 0:
             return False
         return True
+
+    def rescale(self, val: int) -> None:
+        self.N = val
 
     def generate(self) -> list[float]:
         return list(np.random.lognormal(self.mu, self.sigma, self.N))
@@ -220,6 +226,9 @@ class NormalHazardRatio(BaseModel):
     hazard_ratio: float
     sigma: float
     N: int
+
+    def rescale(self, val: int) -> None:
+        self.N = val
 
     def generate(self) -> list[float]:
         return list(np.random.normal(self.hazard_ratio, self.sigma, self.N))
