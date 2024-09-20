@@ -271,6 +271,7 @@ class CoxLogRank(BaseModel):
 
 class MissingData(BaseModel):
     dummy: Optional[str] = None
+    N: Optional[int] = None
 
     def __add__(self, _):
         return MissingData(dummy=None)
@@ -283,6 +284,9 @@ class DoStatement(BaseModel):
 class DoDistribution(BaseModel):
     value: str | bool | int | float
     N: int
+
+    def rescale(self, val: int) -> None:
+        self.N = val
 
     def generate(self) -> list[str | bool | int | float]:
         return [self.value] * self.N
