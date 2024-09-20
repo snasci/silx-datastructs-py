@@ -48,6 +48,9 @@ class SingleCountProbability(BaseModel):
             denominator=self.denominator * val.denominator,
         )
 
+    def generate(self) -> None:
+        raise NotImplementedError("Generate does nothing")
+
 
 class CountDistribution(BaseModel):
     probabilities: list[SingleCountProbability]
