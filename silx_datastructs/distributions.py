@@ -56,6 +56,11 @@ class CountDistribution(BaseModel):
     def denominator(self) -> int:
         return self.probabilities[0].denominator
 
+    @denominator.setter
+    def denominator(self, val: int) -> None:
+        for i in range(len(self.probabilities)):
+            self.probabilities[i].denominator = val
+
     def check(self) -> None:
         if not _all_equal(map(lambda x: x.denominator, self.probabilities)):
             raise ValueError("Invalid distribution: denominators not all equal")
