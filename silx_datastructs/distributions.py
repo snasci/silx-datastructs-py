@@ -53,11 +53,11 @@ class CountDistribution(BaseModel):
     probabilities: list[SingleCountProbability]
 
     @property
-    def denominator(self) -> int:
+    def N(self) -> int:
         return self.probabilities[0].denominator
 
     def rescale(self, new_denominator: int) -> None:
-        scale_factor = new_denominator / self.denominator
+        scale_factor = new_denominator / self.N
         for i in range(len(self.probabilities)):
             numer = self.probabilities[i].numerator
             new_numerator = round(scale_factor * numer)
@@ -73,7 +73,7 @@ class CountDistribution(BaseModel):
         if len(names) != len(self.probabilities):
             raise ValueError("Invalid distribution: repeated elements")
         numerator_sum = sum(map(lambda p: p.numerator, self.probabilities))
-        if numerator_sum != self.denominator:
+        if numerator_sum != self.N:
             raise ValueError(
                 f"Invalid distribution: numerator sum {numerator_sum}"
                 "not equal to denominator {self.denominator}"
