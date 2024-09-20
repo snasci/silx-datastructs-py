@@ -56,10 +56,13 @@ class CountDistribution(BaseModel):
     def denominator(self) -> int:
         return self.probabilities[0].denominator
 
-    @denominator.setter
-    def denominator(self, val: int) -> None:
+    def rescale(self, new_denominator: int) -> None:
+        scale_factor = new_denominator / self.denominator
         for i in range(len(self.probabilities)):
-            self.probabilities[i].denominator = val
+            numer = self.probabilities[i].numerator
+            new_numerator = round(scale_factor * numer)
+            self.probabilities[i].numerator = new_numerator
+            self.probabilities[i].denominator = new_denominator
 
     def check(self) -> None:
         if not _all_equal(map(lambda x: x.denominator, self.probabilities)):
