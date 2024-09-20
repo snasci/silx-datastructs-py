@@ -48,7 +48,7 @@ class SingleCountProbability(BaseModel):
             denominator=self.denominator * val.denominator,
         )
 
-    def generate(self) -> None:
+    def generate(self) -> list:
         raise NotImplementedError("Generate does nothing")
 
     def rescale(self, new_denominator: int) -> None:
