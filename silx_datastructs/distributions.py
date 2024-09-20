@@ -51,6 +51,13 @@ class SingleCountProbability(BaseModel):
     def generate(self) -> None:
         raise NotImplementedError("Generate does nothing")
 
+    def rescale(self, new_denominator: int) -> None:
+        scale_factor = new_denominator / self.N
+        numer = self.numerator
+        new_numerator = round(scale_factor * numer)
+        self.numerator = new_numerator
+        self.denominator = new_denominator
+
 
 class CountDistribution(BaseModel):
     probabilities: list[SingleCountProbability]
@@ -60,12 +67,8 @@ class CountDistribution(BaseModel):
         return self.probabilities[0].denominator
 
     def rescale(self, new_denominator: int) -> None:
-        scale_factor = new_denominator / self.N
         for i in range(len(self.probabilities)):
-            numer = self.probabilities[i].numerator
-            new_numerator = round(scale_factor * numer)
-            self.probabilities[i].numerator = new_numerator
-            self.probabilities[i].denominator = new_denominator
+            self.probabilities[i].rescale(new_denominator)
 
     def check(self) -> None:
         if not _all_equal(map(lambda x: x.denominator, self.probabilities)):
@@ -273,11 +276,19 @@ class CoxLogRank(BaseModel):
 
 
 class MissingData(BaseModel):
-    dummy: Optional[str] = None
+    dummy: str = "nan"
     N: Optional[int] = None
 
     def __add__(self, _):
-        return MissingData(dummy=None)
+        return MissingData()
+
+    def generate(self) -> list[str]:
+        if self.N is None:
+            raise ValueError("N is unspecified, cannot generate")
+        return [self.dummy] * self.N
+
+    def rescale(self, val: int) -> None:
+        self.N = val
 
 
 class DoStatement(BaseModel):
