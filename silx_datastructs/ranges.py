@@ -32,6 +32,23 @@ class RangeStatement(BaseModel):
         right_str = "_)" if self.right is None else str(self.right)
         return f"{left_str}, {right_str}"
 
+    def in_range(self, val: float) -> bool:
+        left_val = -np.inf
+        left_incl = False
+        if self.left is not None:
+            left_val = self.left.number
+            left_incl = self.left.inclusive
+
+        right_val = np.inf
+        right_incl = False
+        if self.right is not None:
+            right_val = self.right.number
+            right_incl = self.right.inclusive
+
+        above_left = left_val <= val if left_incl else left_val < val
+        below_right = val <= right_val if right_incl else val < right_val
+        return above_left and below_right
+
     def distance(self, query_value: float) -> float:
         left_val = -np.inf
         left_inc = False

@@ -1,9 +1,11 @@
 import unittest
+from unittest.main import main
 
 import numpy as np
 
-from silx_datastructs import dag
 from silx_datastructs import db
+from silx_datastructs import dag
+from silx_datastructs import ranges
 from silx_datastructs import distributions
 
 
@@ -94,9 +96,9 @@ class TestDistributions(unittest.TestCase):
         bad1 = distributions.CountDistribution(probabilities=[d1, d2, d3])
         bad2 = distributions.CountDistribution(probabilities=[d1, d1])
 
-        self.assertTrue(good.is_valid())
-        self.assertFalse(bad1.is_valid())
-        self.assertFalse(bad2.is_valid())
+        good.check()
+        self.assertRaises(ValueError, bad1.check)
+        self.assertRaises(ValueError, bad2.check)
 
         n1 = good.name_lookup("male")
         self.assertEqual(n1, d1)
@@ -111,13 +113,56 @@ class TestDistributions(unittest.TestCase):
         good = distributions.NormalDistribution(mu=4, sigma=2, N=400)
         bad = distributions.NormalDistribution(mu=-2, sigma=0, N=0)
 
-        self.assertTrue(good.is_valid())
-        self.assertFalse(bad.is_valid())
+        good.check()
+        self.assertRaises(ValueError, bad.check)
 
         generated = good.generate()
         m = np.mean(generated)
         self.assertEqual(len(generated), 400)
-        self.assertAlmostEqual(m, 4.0, places=1)
+        self.assertAlmostEqual(m, 4.0, places=0)
+
+
+class TestRanges(unittest.TestCase):
+    def test_fragments(self) -> None:
+        l1 = ranges.LeftRangeFragment(number=3, inclusive=False)
+        l2 = ranges.LeftRangeFragment(number=5.6, inclusive=True)
+        self.assertEqual(str(l1), "(3.0")
+        self.assertEqual(str(l2), "[5.6")
+
+        r1 = ranges.RightRangeFragment(number=6, inclusive=False)
+        r2 = ranges.RightRangeFragment(number=8.6, inclusive=True)
+        self.assertEqual(str(r1), "6.0)")
+        self.assertEqual(str(r2), "8.6]")
+
+    def test_range_statement(self) -> None:
+        r1 = ranges.RangeStatement(
+            left=ranges.LeftRangeFragment(number=4, inclusive=False), right=None
+        )
+        self.assertEqual(str(r1), "(4.0, _)")
+        self.assertTrue(r1.in_range(5))
+        self.assertFalse(r1.in_range(-1))
+        self.assertEqual(r1.distance(2), 2)
+        self.assertEqual(r1.distance(5), 0)
+
+        r2 = ranges.RangeStatement(
+            left=None,
+            right=ranges.RightRangeFragment(number=4, inclusive=True),
+        )
+        self.assertEqual(str(r2), "(_, 4.0]")
+        self.assertTrue(r2.in_range(4))
+        self.assertFalse(r2.in_range(4.1))
+        self.assertEqual(r2.distance(2), 0)
+        self.assertEqual(r2.distance(5), 1)
+
+        r3 = ranges.RangeStatement(
+            left=ranges.LeftRangeFragment(number=4, inclusive=False),
+            right=ranges.RightRangeFragment(number=7.4, inclusive=True),
+        )
+        self.assertEqual(str(r3), "(4.0, 7.4]")
+        self.assertTrue(r3.in_range(4.1))
+        self.assertFalse(r3.in_range(7.41))
+        self.assertEqual(r3.distance(2), 2)
+        self.assertEqual(r3.distance(5), 0)
 
 
 if __name__ == "__main__":
