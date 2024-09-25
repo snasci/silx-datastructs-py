@@ -194,9 +194,15 @@ def edge_to_hyper_edge_lookup(
     return hyper_lookup
 
 
-class TableElement(BaseModel):
+class IntermediateTableElement(BaseModel):
     column: str
     distribution: DISTRIBUTION_T | SingleCountProbability
+    unit: str
+
+
+class TableElement(BaseModel):
+    column: str
+    distribution: DISTRIBUTION_T
     unit: str
 
 
@@ -207,7 +213,7 @@ def _all_equal(iterator):
 
 def consolidate_distributions(
     col: str,
-    data: list[TableElement],
+    data: list[IntermediateTableElement],
 ) -> TableElement:
     if not data:
         raise ValueError("No data")
@@ -255,7 +261,14 @@ def consolidate_distributions(
     else:
         if len(data) != 1:
             raise ValueError(f"Invalid data column: {data}")
-        return data[0]
+        distrib = data[0].distribution
+
+        if not isinstance(distrib, DISTRIBUTION_T):
+            raise ValueError(f"Invalid distribution in {data[0]}")
+
+        return TableElement(
+            column=data[0].column, distribution=distrib, unit=data[0].unit
+        )
 
 
 class PaperDataTableRow(BaseModel):
