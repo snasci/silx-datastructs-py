@@ -1,10 +1,9 @@
 from enum import Enum
 from typing import Union, Optional
 from itertools import groupby
-from functools import reduce
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 from .dag import CatRange
@@ -19,6 +18,10 @@ class SingleCountProbability(BaseModel):
     name: str
     numerator: int
     denominator: int
+
+    @field_validator("name")
+    def lowercase_name(cls, value):
+        return value.lower()
 
     @property
     def N(self) -> int:
