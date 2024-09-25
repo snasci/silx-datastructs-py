@@ -177,10 +177,9 @@ class LogNormalDistribution(BaseModel):
     sigma: float
     N: int
 
-    def is_valid(self) -> bool:
-        if self.mu < 0 or self.sigma < 0 or self.N < 0:
-            return False
-        return True
+    def check(self) -> None:
+        if self.mu < 0 or self.sigma < 0 or self.N < 1:
+            raise ValueError(f"Invalid distribution {self}")
 
     def rescale(self, val: int) -> None:
         self.N = val
@@ -240,6 +239,10 @@ class NormalHazardRatio(BaseModel):
     sigma: float
     N: int
 
+    def check(self) -> None:
+        if self.hazard_ratio < 0 or self.sigma < 0 or self.N < 1:
+            raise ValueError(f"Invalid distribution {self}")
+
     def rescale(self, val: int) -> None:
         self.N = val
 
@@ -286,6 +289,9 @@ class MissingData(BaseModel):
     dummy: str = "nan"
     N: Optional[int] = None
 
+    def check(self) -> None:
+        return
+
     def __add__(self, _):
         return MissingData()
 
@@ -305,6 +311,10 @@ class DoStatement(BaseModel):
 class DoDistribution(BaseModel):
     value: str | bool | int | float
     N: int
+
+    def check(self) -> None:
+        if self.N < 0:
+            raise ValueError("Invalid distribution")
 
     def rescale(self, val: int) -> None:
         self.N = val
