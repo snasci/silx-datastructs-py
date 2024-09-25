@@ -234,6 +234,15 @@ def consolidate_distributions(
                         name="false", numerator=nnumer, denominator=denom
                     )
                 )
+            elif probs[0].name == "false":
+                numer = probs[0].numerator
+                denom = probs[0].denominator
+                nnumer = denom - numer
+                probs.append(
+                    SingleCountProbability(
+                        name="true", numerator=nnumer, denominator=denom
+                    )
+                )
 
         if not _all_equal(units):
             raise ValueError(f"Units in counts not all equal: {units}")
