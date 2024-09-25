@@ -85,8 +85,8 @@ class CountDistribution(BaseModel):
         numerator_sum = sum(map(lambda p: p.numerator, self.probabilities))
         if numerator_sum != self.N:
             raise ValueError(
-                f"Invalid distribution: numerator sum {numerator_sum}"
-                "not equal to denominator {self.denominator}"
+                f"Invalid distribution: numerator sum {numerator_sum} "
+                f"not equal to denominator {self.N}"
             )
 
     def name_lookup(self, name: str) -> SingleCountProbability:
