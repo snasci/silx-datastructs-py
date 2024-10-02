@@ -106,7 +106,10 @@ class CountDistribution(BaseModel):
             output.extend([probability.name] * probability.numerator)
 
         # Check if boolean
-        if self.N == 2 and (self.probabilities[0].name in ("true", "false")):
+        if len(self.probabilities) == 2 and (
+            self.probabilities[0].name == "true"
+            or self.probabilities[0].name == "false"
+        ):
             return list(map(bool, output))
 
         return output

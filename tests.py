@@ -109,6 +109,18 @@ class TestDistributions(unittest.TestCase):
         self.assertRaises(ValueError, bad1.generate)
         self.assertRaises(ValueError, bad2.generate)
 
+        d4 = distributions.SingleCountProbability(
+            name="true", numerator=4, denominator=10
+        )
+        d5 = distributions.SingleCountProbability(
+            name="false", numerator=6, denominator=10
+        )
+        good2 = distributions.CountDistribution(probabilities=[d4, d5])
+        arr = good2.generate()
+        self.assertIsInstance(arr[0], bool)
+        print(good2.N)
+        print(good2.probabilities[0].name)
+
     def test_normal_distribution(self):
         good = distributions.NormalDistribution(mu=4, sigma=2, N=400)
         bad = distributions.NormalDistribution(mu=-2, sigma=0, N=0)
