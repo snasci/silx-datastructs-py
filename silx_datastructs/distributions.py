@@ -98,11 +98,17 @@ class CountDistribution(BaseModel):
                 return p
         raise ValueError(f"{name} not found in probability list")
 
-    def generate(self) -> list[str]:
+    def generate(self) -> list[str] | list[bool]:
         self.check()
+
         output: list[str] = []
         for probability in self.probabilities:
             output.extend([probability.name] * probability.numerator)
+
+        # Check if boolean
+        if self.N == 2 and (self.probabilities[0].name in ("true", "false")):
+            return list(map(bool, output))
+
         return output
 
     def __add__(self, val):
