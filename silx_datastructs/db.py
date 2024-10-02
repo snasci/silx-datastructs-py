@@ -198,12 +198,14 @@ class IntermediateTableElement(BaseModel):
     column: str
     distribution: DISTRIBUTION_T | SingleCountProbability
     unit: str
+    param_type: str
 
 
 class TableElement(BaseModel):
     column: str
     distribution: DISTRIBUTION_T
     unit: str
+    param_type: str
 
 
 def _all_equal(iterator):
@@ -257,6 +259,7 @@ def consolidate_distributions(
             column=col,
             distribution=CountDistribution(probabilities=probs),
             unit=units[0],
+            param_type=data[0].param_type,
         )
     else:
         if len(data) != 1:
@@ -267,7 +270,10 @@ def consolidate_distributions(
             raise ValueError(f"Invalid distribution in {data[0]}")
 
         return TableElement(
-            column=data[0].column, distribution=distrib, unit=data[0].unit
+            column=data[0].column,
+            distribution=distrib,
+            unit=data[0].unit,
+            param_type=data[0].param_type,
         )
 
 
