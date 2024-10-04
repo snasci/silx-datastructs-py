@@ -118,6 +118,7 @@ class TestDistributions(unittest.TestCase):
         good2 = distributions.CountDistribution(probabilities=[d4, d5])
         arr = good2.generate()
         self.assertIsInstance(arr[0], bool)
+        self.assertEqual(sum(arr), 4)
 
     def test_normal_distribution(self):
         good = distributions.NormalDistribution(mu=4, sigma=2, N=400)

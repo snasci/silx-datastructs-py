@@ -3,7 +3,7 @@ from typing import Union, Optional
 from itertools import groupby
 
 import numpy as np
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ValidationError, field_validator
 
 
 from .dag import CatRange
@@ -66,6 +66,15 @@ class SingleCountProbability(BaseModel):
         self.denominator = new_denominator
 
 
+def str_to_bool(s: str) -> bool:
+    if s == "true":
+        return True
+    elif s == "false":
+        return False
+    else:
+        raise ValueError(f"Invalid input {s}")
+
+
 class CountDistribution(BaseModel):
     probabilities: list[SingleCountProbability]
 
@@ -110,7 +119,7 @@ class CountDistribution(BaseModel):
             self.probabilities[0].name == "true"
             or self.probabilities[0].name == "false"
         ):
-            return list(map(bool, output))
+            return list(map(str_to_bool, output))
 
         return output
 
