@@ -223,6 +223,7 @@ def generate_placebo_condition(source: str, group_type: str) -> ConditionNode:
 
 
 class OutcomeNode(DAGNode):
+    primary: bool = False
     meta: Optional[OutcomeMetaData] = None
 
 
