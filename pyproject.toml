@@ -1,18 +1,11 @@
-[tool.poetry]
-name = "silx-datastructs"
-version = "0.6.3"
-description = "Datastructures for inter-system communication"
-authors = ["Michael Samsom <mike.samsom@asica.ca>"]
+[project]
+name = "silx-datastructs-py"
+version = "0.1.0"
+description = "Add your description here"
 readme = "README.md"
-packages = [{ include = "silx_datastructs" }]
-
-[tool.poetry.dependencies]
-python = "^3.11"
-pydantic = "^2"
-numpy = "^1.24.0"
-scipy = "^1.14.1"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy==1.24.0",
+    "pydantic>=2.9.2",
+    "scipy>=1.14.1",
+]
