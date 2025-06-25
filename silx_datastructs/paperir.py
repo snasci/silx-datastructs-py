@@ -6,6 +6,12 @@ from .article import Author
 from .dag import ProbabilityStatement
 
 
+class Publication(BaseModel):
+    citation: str
+    context: str
+    pmid: Optional[int]
+
+
 class StudyInfo(BaseModel):
     title: Optional[str]
     study_date: date
@@ -16,6 +22,7 @@ class StudyInfo(BaseModel):
     abstract: Optional[str] = None
     sponsor: Optional[str] = None
     n_arms: Optional[int] = 1
+    publication_list: Optional[Publication] = None
 
 
 class StudySponsor(BaseModel):
